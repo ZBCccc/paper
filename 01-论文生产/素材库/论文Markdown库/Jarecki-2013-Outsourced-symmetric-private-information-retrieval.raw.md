@@ -1,0 +1,990 @@
+# Raw - Jarecki 2013 - Outsourced Symmetric Private Information Retrieval
+
+## 文档信息
+- 标题: Outsourced Symmetric Private Information Retrieval
+- 作者: Stanislaw Jarecki, Charanjit Jutla, Hugo Krawczyk, Marcel Rosu, Michael Steiner
+- 会议: ACM CCS 2013
+- DOI: `10.1145/2508859.2516730`
+- 来源 PDF: `/Users/cyan/code/paper/ref-thesis/Jarecki 等 - 2013 - Outsourced symmetric private information retrieval.pdf`
+- 转换时间: `2026-02-13 22:08:58`
+- 说明: 自动全文抽取，存在双栏排版噪声，仅供回溯。
+
+---
+
+## 正文（自动抽取）
+
+                              Outsourced SymmetricPrivate Information Retrieval
+                                         Stanislaw Jarecki                                      Charanjit Jutla                                   HugoKrawczyk
+                                          U. California Irvine                                    IBMResearch                                         IBMResearch
+                                       stasio@ics.uci.edu                                 csjutla@us.ibm.com                               hugo@ee.technion.ac.il
+                                                                       Marcel Rosu                                      Michael Steiner
+                                                                    U. California Irvine                                    IBMResearch
+                                                             marcelrosu@gmail.com                                msteiner@us.ibm.com
+                    ABSTRACT                                                                                     1.      INTRODUCTION
+                    In the setting of searchable symmetric encryption (SSE), a                                       Consider a database DB composed of collection of docu-
+                    data owner D outsources a database (or document/ﬁle col-                                     mentsor records and an application that needs to search DB
+                    lection) to a remote server E in encrypted form such that                                    basedonthekeywordscontainedintheserecords. Forexam-
+                    Dcan later search the collection at E while hiding informa-                                  ple, DB can be a medical relational database with records
+                    tion about the database and queries from E. Leakage to E                                     indexed by a set of attributes (e.g., name, zipcode, medi-
+                    is to be conﬁned to well-deﬁned forms of data-access and                                     cal condition, etc.), an email repository indexed by English
+                    query patterns while preventing disclosure of explicit data                                  words and/or envelope information (date, sender, receivers,
+                    and query plaintext values. Recently, Cash et al. presented                                  etc.), a collection of webpages indexed by text and metadata,
+                    a protocol, OXT, which can run arbitrary boolean queries                                     etc. A search query consists of a boolean expression on key-
+                    in the SSE setting and which is remarkably eﬃcient even for                                  wordsthatreturnsalldocumentswhose associated keywords
+                    very large databases.                                                                        satisfy that expression. In this paper we are concerned with
+                       In this paper we investigate a richer setting in which the                                applications where the database is outsourced to an exter-
+                    data owner D outsources its data to a server E but D is                                      nal server E and search is performed at E privately. That is,
+                    now interested to allow clients (third parties) to search the                                E stores an encrypted version of the original database DB
+                    database such that clients learn the information D autho-                                    (plus some metadata) and answers encrypted queries from
+                    rizes them to learn but nothing else while E still does not                                  clients such that the client obtains the documents matching
+                    learn about the data or queried values as in the basic SSE                                   his query without E learning plaintext information about
+                    setting. Furthermore, motivated by a wide range of appli-                                    the data and queries.
+                    cations, we extend this model and requirements to a setting                                      The most basic setting of private data outsourcing as de-
+                    where, similarly to private information retrieval, the client’s                              scribed above is where the owner of the data itself, D, is the
+                    queried values need to be hidden also from the data owner                                    party performing the search at E. In this setting, D initially
+                    Deven though the latter still needs to authorize the query.                                  processes DB into an encrypted database EDB and sends it
+                    Finally, we consider the scenario in which authorization can                                 to E. D only keeps a set of cryptographic keys that allows
+                    be enforced by the data owner D without D learning the                                       her to later run encrypted searches on E and decrypt the
+                    policy, a setting that arises in court-issued search warrants.                               matchingdocumentsreturnedbyE. Thissettingisknownas
+                       We extend the OXT protocol of Cash et al. to support                                      searchable symmetric encryption (SSE) and has been stud-
+                    arbitrary boolean queries in all of the above models while                                                          29, 15, 16, 10, 13, 11, 24]. While most of the
+                    withstanding adversarial non-colluding servers (D and E)                                     ied extensively [
+                    and arbitrarily malicious clients, and while preserving the                                  research has focused on single-keyword searches (i.e., return
+                    remarkable performance of the protocol.                                                      all documents containing a given keyword), recently Cash
+                                                                                                                 et al. [9] provided the ﬁrst SSE solution, the OXT protocol,
+                                                                                                                 that can support in a practical and private way arbitrary
+                                                                                                                 boolean queries on sets of keywords and in very large DBs.
+                                                                                                                 The leakage to E, which is formally speciﬁed and proven in
+                                                                                                                 [9], is in the form of data-access and query patterns, never
+                                                                                                                 as direct exposure of plaintext data or searched values.
+                                                                                                                     In this work we are concerned with richer outsourcing sce-
+                                                                                                                 narios where multiple third parties (clients) access the data
+                                                                                                                 at E but only through queries authorized by the data owner
+                                                                                                                 D. For example, consider a hospital outsourcing an (en-
+                    Permission to make digital or hard copies of all or part of this work for personal or        crypted) database to an external service E such that clients
+                    classroom use is granted without fee provided that copies are not made or distributed
+                                                                                                                 (doctors, administrators, insurance companies, etc.)                             can
+                    for prof t or commercial advantage and that copies bear this notice and the full cita-
+                                                                                                                 search the database but only via queries authorized accord-
+                    tion on the f rst page. Copyrights for components of this work owned by others than
+                    ACMmustbehonored. Abstractingwithcreditispermitted. Tocopy otherwise, orre-                  ing to the hospital’s policy and without these clients learn-
+                    publish, to post on servers or to redistribute to lists, requires prior specif c permission  ing information on non-matching documents. As before, E
+                    and/or a fee. Request permissions from permissions@acm.org.                                  should learn as little as possible about data and queries.
+                    CCS’13, November 4–8, 2013, Berlin, Germany.                                                     In this multi-client scenario (to which we refer as MC-
+                    Copyright 2013 ACM978-1-4503-2477-9/13/11 ...$15.00.
+                                                                                                                 SSE), D provides search tokens to clients based on their
+                    http://dx.doi.org/10.1145/2508859.2516730.
+                                                                                                           875
+               queries and according to a given authorization policy. Se-            of terms are allowed or that the query needs to include at
+               curity considers multiple clients acting maliciously and pos-         least three of a set of attributes, etc. In such a case, there is
+               sibly colluding with each other (trying to gain information           no need for the hospital to learn the particular values being
+               beyond what they are authorized for) and a semi-trusted               searched (such as a speciﬁc last name or medical condition).
+               server E which acts as “honest-but-curious” but does not              In other cases, as in outsourced patent or ﬁnancial informa-
+               collude with clients. Extending SSE solutions to the multi-           tion search, the provider D may want to enforce that a client
+               client scenario is straightforward when (a) search tokens are         C pays for the type of query it is interested in but C wants
+               fully determined by the query and (b) the SSE protocol does           to keep his query hidden from both D and E. Applications
+               not return false positives (returning false positives, i.e. doc-      to intelligence scenarios are discussed in [18] (see also [32]).
+               uments that do not match a query, is allowed in SSE since                Thus, we relax the query privacy requirement with respect
+               the recipient in that case is the owner of the data but not           to D to allow for minimal information needed for D to deter-
+               in the multi-client setting where clients are not allowed to          mine policy compliance. Speciﬁcally, we consider the case
+               learn data they were not authorized for). In such cases, D            where keywords are formed by pairs of attribute-values. For
+               would receive the client’s query, generate the corresponding          example, in a relational database, attributes are deﬁned by
+               SSEsearchtokensasif D herself was searching the database,             the database columns (e.g., SSN, name, citizenship, etc.),
+               and provide the tokens to the client together with a signa-           while in an email repository attributes can refer to envelope
+               ture that E can check before processing the search. However,          information such as sender and receivers or to the message
+               for enabling general boolean queries, the SSE OXT protocol            body (in which case the values are, say, English words). In
+                  9] requires a number of tokens that is not known a-priori
+               of [                                                                  this case, a policy deﬁnes the class of boolean expressions
+               (it depends on the searched data, not only on the query) and          allowed for a given client and the attributes that may be
+               therefore the above immediate adaptation does not work.               used as inputs into these expressions. In order to enforce
+                 Our ﬁrst contribution is in extending the OXT protocol              the policy, D learns the boolean expression and attributes
+               from [9] to the MC-SSE setting while preserving its full              but nothing about the searched values. For policies deﬁned
+               boolean-query capabilities and performance. In this exten-            via classes of attributes (e.g. allowing any attribute from
+               sion, D provides the client C with a set of query-speciﬁc trap-       the set of attributes {name, city, zipcode}) leakage to D can
+               doors which the client can then transform into search tokens          be further reduced by revealing the class and not the speciﬁc
+               as required by OXT. The set of trapdoors given to C is fully          attributes in the query.
+               determined by the query and independent of the searched                  Our most advanced result is extending the OXT proto-
+               data.   An additional subtle technical challenge posed by             col to the above OSPIR setting. The resultant protocol,
+               OXTis how to allow E to verify that the search tokens pre-            OSPIR-OXT, adds some crucial new ingredients to OXT:
+               sented by C are authorized by D. The simple solution is for           It uses oblivious PRFs (OPRF) for hiding the query val-
+               D to sign the trapdoors, however in OXT these trapdoors               ues from D, uses attribute-speciﬁc keys for enforcing policy
+               need to be hidden from E (otherwise E can learn information           compliance, and uses homomorphic signatures (or the more
+               about unauthorized searches) so a simple signature on them            general abstraction of shared OPRFs) for query veriﬁcation
+               cannot be veriﬁed by E. Our solution uses a homomorphic               by E. A further extension of the protocol accommodates an
+               signature by D on the trapdoors that C can then transform             external policy manager, e.g., a judge in a warrant-based
+               homomorphically into signatures on the search tokens. We              search, who checks policy compliance and allows server D
+               show that forging the tokens or their signatures is infeasible        to enforce the policy without learning the attributes being
+               even by fully malicious clients.                                      searched.
+                 The resulting MC-OXT protocol preserves the full func-                 Performance-wise ourextensionstoOXTpreservethepro-
+               tional properties of OXT, namely supportfor arbitrary boolean         tocol’s performance in both pre-processing (creating EDB)
+               queries, the same level of privacy (i.e., same leakage pro-           and search phases. OSPIR-OXT adds to the computational
+               ﬁle) with respect to E, and the same remarkable perfor-               cost by adding a few exponentiations but these are gener-
+               mance. Privacy with respect to clients is near-optimal (see           ally inexpensive relative to the I/O cost (especially thanks
+               Section 3.1 for why such leakage may be inevitable) with              to common-base exponentiation optimizations). The pro-
+               leakage conﬁned only to information on the number of doc-             tocols we provide for MC-SSE and OSPIR models support
+               umentsmatchingoneofthequeryterms(typically,theleast-                  encrypted search over database containing tens of billions
+               frequent term).                                                       record-keyword pairs, for example a full snapshot of English
+                 Next, we extend the MC-OXT protocol to an even more                 Wikipedia or a 10-TByte, 100M-record US-census database
+               challenging setting we call Outsourced Symmetric Private              (see Sections 4.3 and 4.4).
+               Information Retrieval (OSPIR), where on top of the MC-                   We achieve provable security against adaptive adversar-
+               SSE requirements, one asks that client queries be hidden              ial honest-but-curious server E, against arbitrarily malicious
+                                                                                                         1
+               from D-similarly tothePrivateInformationRetrieval(PIR)                (but non-colluding with E) server D, and against arbitrar-
+               primitive. This requirement arises in important outsourc-             ily malicious clients. Our security models extend the SSE
+               ing scenarios. In the medical database example mentioned              model [13, 11, 9] to the more complex settings of MC-SSE
+               above, the hospital authorizes doctors or other parties to            and OSPIR. In all cases security is deﬁned in the real-vs-
+               search the medical database according to certain policy;              ideal model and is parametrized by a speciﬁed leakage func-
+               however, in some cases the actual query values are to be              tion L(DB,q). A protocol is said to be secure with leakage
+               kept secret from the hospital itself (due to privacy, liability       proﬁle L(DB,q) against adversary A if the actions of A on
+               and regulatory requirements). Only the minimal informa-               adversarially-chosen input DB and queries set q can be sim-
+               tion for determining the compliance of a query to the policy          ulated with access to the leakage information L(DB,q) only
+               should be disclosed to the hospital. For example, the policy
+               mayindicate that only conjunctions with a minimal number               1See Section 5.1.
+                                                                                 876
+              (and not to DB or q). This allows modeling and bounding           protection of client’s queries from server E, but multi-client
+              partial leakage allowed by SSE protocols. It means that even      ORAMsupports DB lookups by (single) indexes instead of
+              an adversary that has full information about a database, or       (boolean formulas on) keywords, and they can currently sup-
+              even chooses it, does not learn anything from the protocol        port much smaller DB sizes.
+              execution other than what can be derived solely from the          Paper organization. We ﬁrst present our protocols for
+              deﬁned leakage proﬁle.                                            the case of conjunctive queries: in Section 2 we recall the
+              Related work: Searchable symmetric encryption (SSE)               basic OXT protocol [9], suitably reformulated for our gen-
+              has been extensively studied [29, 15, 16, 10, 13, 11, 24] (see    eralizations, in Section 3 we address the multi-client SSE
+              [13, 11] for more on related work). Most SSE research fo-         model, and in Section 4 we handle the OSPIR model. In
+              cused on single-keyword search, and after several solutions       Section 4.2 we explain how to extend support for general
+              with complexity linear in the database size, Curtmola et          boolean queries. Our security models and claims are pre-
+              al. [13] present the ﬁrst solution for single-keyword search      sented concisely in Section 5 — a complete treatment is
+              whose complexity is linear in the number of matching doc-         deferred to the full version [20]. While the main implemen-
+              uments. They also improve on previous security models, in         tation details and performance analysis is deferred to a com-
+              particular by providing an adaptive security deﬁnition and        panion paper [8], we provide some information on computa-
+              a solution in this model.                                         tional cost and performance measurements from our imple-
+                Extending single-keyword SSE to search by conjunctions          mentation in Section 4.3 and 4.4, respectively.
+              of keywordswasconsideredin[16, 7, 2], butall these schemes
+              had O(|DB|) search complexity. The ﬁrst SSE which can
+                                                                                2.   SSEANDTHEOXTPROTOCOL
+              handle very large DBs and supports conjunctive queries is
+              the OXT protocol discussed above, given by Cash et al. [9].         Weﬁrst recall the SSE OXT protocol from [9] that forms
+              The MC-SSE and OSPIR schemes we present are based on              the basis for our solution to searchable encryption in the
+              this protocol and they preserve its performance and privacy       more advanced MC and OSPIR models.
+              characteristics.                                                  SSE protocols and formal setting [9]. Let λ be a se-
+                Extension of the two-party client-server model of SSE to        curity parameter. A database DB = (ind ,W )d         is a list
+                                                                                                                           i   i i=1
+              the multi-client setting was considered by Curtmola et al,                                                               λ
+                                                                                of identiﬁer and keyword-set pairs, where indi ∈ {0,1} is a
+              [13], but their model disallowed per-query interaction be-                                              ∗
+                                                                                document identiﬁer and Wi ⊆ {0,1} is a list of keywords
+              tween the data owner and the client, leading to a rela-           in that document. We set W to Sd       Wi. A query ψ(w¯) is
+              tively ineﬃcient implementation based on broadcast encryp-                                           i=1
+                                                                                speciﬁed by a tuple of keywords w¯ ∈ W∗ and a boolean for-
+              tion.  Multi-client SSE setting which allows such interac-        mula ψ on w¯. We write DB(ψ(w¯)) for the set of identiﬁers
+              tion was considered by Chase and Kamara [11] as SSE with          of documents that“satisfy”ψ(w¯). Formally, this means that
+              “controlled disclosure”, and by Kamara and Lauter [23], as        ind ∈ DB(ψ(w¯)) iﬀ the formula ψ(w¯) evaluates to true when
+              “virtual private storage”, but both considered only single-          i
+              keyword queries and did not support query privacy from the        wereplaceeachkeywordwj withtrueorfalsedependingonif
+                                                                                w ∈W ornot(in particular DB(w) = {ind s.t. w ∈ W }).
+              data owner. De Cristofaro et al. [12] extended multi-client         j     i                                   i            i
+                                                                                BelowweletddenotethenumberofrecordsinDB,m =|W|,
+              SSE to the OSPIR setting, which supports query privacy,           and N =P         |DB(w)|.
+              but only for the case of single-keyword queries. In recent                    w∈W
+              independent work, Pappas et al. [27] provide support for            Asearchable symmetric encryption (SSE) scheme Π con-
+              boolean queries in a setting similar to our OSPIR setting         sists of an algorithm EDBSetup and a protocol Search ﬁtting
+              (but with honest-but-curious clients).                            the following syntax. EDBSetup takes as input a database
+                SSE schemes which support eﬃcient updates of the en-            DBandalistofdocumentdecryptionkeysRDK,andoutputs
+              crypted database appeared in [30, 24] for single-keyword          a secret key K along with an encrypted database EDB. The
+              SSE. The OXT SSE scheme of [9] which supports arbitrary           search protocol proceeds between a client C and server E,
+              boolean queries, has been extended to the dynamic case in         where C takes as input the secret key K and a query ψ(w¯)
+              [8], and the same techniques apply to the MC-SSE and OS-          and E takes as input EDB. At the end of the protocol C
+              PIR schemes presented in this paper.                              outputs a set of (ind,rdk) pairs while E has no output. We
+                Recently Islam et al. [19] showed that frequency analy-         say that an SSE scheme is correct if for all DB,RDK and all
+              sis revealed by access control patterns in SSE schemes can        queries ψ(w¯), for (K,EDB) ← EDBSetup(DB,RDK), after
+              be used to predict single-keyword queries. Such attacks, al-      running Search with client input (K,φ(w¯)) and server in-
+              though harder to stage, are possible for conjunctive queries      put EDB, the client outputs DB(φ(w¯)) and RDK[DB(φ(w¯))]
+              as well, but the general masking and padding countermea-          where RDK[S] denotes {RDK[ind]|ind ∈ S}.         Correctness
+              sures suggested in [19] are applicable to the MC-OXT and          can be statistical (allowing a negligible probability of er-
+              OSPIR-OXTprotocols.                                               ror) or computational (ensured only against computation-
+                In other directions, SSE was extended to the public key         ally bounded attackers - see [9]).
+              setting, allowing any party to encrypt into the database, ﬁrst    Note (conjunctive vs. Boolean queries).     Throughout the
+              for single-keyword search [5, 31, 1, 3, 6, 28], and later for     paper we present our protocols for the case of conjunctive
+                                                                                queries where aqueryconsists ofn keywordsw¯ = (w ,...,w )
+              conjunctive queries as well [6], but all these PKSE schemes                                                           1       n
+              have O(|DB|) search complexity. Universally composable            and it returns all documents containing all these keywords.
+              SSE was introduced by [25], also with O(|DB|) search com-         The adaptation to the case of boolean queries is described
+              plexity.                                                          in Section 4.2.
+                Multi-client SSE and OSPIR models are related to the            Note (the array RDK). Our SSE syntax, and the OXT de-
+              work on multi-client ORAM, e.g. see the recent work of            scription in Figure 1, includes as input to EDBSetup an array
+              Huang and Goldberg [17], which aims for stronger privacy          RDKthatcontains, for each document in DB, a key rdk used
+                                                                            877
+               to encrypt that document. When a client retrieves the in-            f can be a PRF used with xtrap(w) as the key and ind as
+               dex ind of a document matching its query, it also retrieves          input). The output EDB from the EDBSetup phase includes
+               the record-decrypting key rdk needed to decrypt that record.         TSet = {TSet(w)}         and the set XSet. In the Search pro-
+                                                                                                        w∈W
+               This mechanism is not strictly needed in the SSE setting             tocol for a conjunction (w ,...,w ), the client C chooses
+                                                                                                                 1        n
+               (where rdk could be derived from ind using a PRF with a              the conjunction’s s-term (i.e., the estimated least frequent
+               secret key known to C) and it is not part of the original OXT        keyword in the conjunction, which we assume to be w1),
+               in [9], but it is needed in the more advanced models consid-         computes stag(w ) and K using C’s secret keys and com-
+                                                                                                      1         e
+               ered later. This extension does not change the functionality         putes xtrap = F(K ,w ) for each i = 2,...,n. It then
+                                                                                                i          X i
+               and security properties of OXT as analyzed in [9]).                  sends (Ke,stag,xtrap2,...,xtrapn) to the server E. E uses
+                                                                                    stag to retrieve TSet(w ), uses K to decrypt the ind val-
+               Note (retrieval of matching encrypted records). Our formal-                                    1          e
+                                                                                    ues in TSet(w ), and sends back to C those ind for which
+               ism deﬁnes the output of the SSE protocol as the set of ind                          1
+               identiﬁers pointing to the encrypted records matching the            f(xtrapi,ind) ∈ XSet for all i = 2,...,n.
+               query, together with the associated record decryption key.              The OXT protocol from Figure 1 follows the above logic
+               For the sake of generality, we do not model the processing           but instantiates it in a way that minimizes leakage to E.
+               and retrieval of encrypted records. This allows us to decou-         Rather than assuming a speciﬁc implementation of TSet,
+               ple the storage and processing of document payloads (which           [9] abstracts this data structure through an API that we
+               can be done in a variety of ways, with varying types of leak-        adopt here. Speciﬁcally, the abstract TSetSetup operation
+               age) from the storage and processing of the metadata, which          receives a collection T of lists t(w) for each w ∈ W and
+               is the focus of our protocols.                                       builds the TSet data structure out of these lists; it returns
+                                                                                    TSet and a key KT. Then, TSetRetrieve(TSet,stag(w)) in-
+               SSE Security. The SSE setting considers security w.r.t.              stantiates the retrieval of a TSet(w) via its handle stag(w)
+               an adversarial server E, hence security is parametrized via          which is computed by a function TSetGetTag(KT,w) (typ-
+               a leakage function capturing information learned by E from           ically a PRF). The elements in the t(w) lists are called tu-
+               the interaction with C. See Section 5.                               ples and their contents are deﬁned by the OXT protocol.
+                                                                                    ATSet implementation provides two crucial security prop-
+               2.1    TheOXTProtocol                                                erties [9]: privacy in that the TSet datastructure does not
+                 The OXT protocol [9] is presented in Figure 1; see [9] for         reveal anything about the tuple lits in T except their sum-
+               full design rationale and analysis. Here we provide a high           mary length P |T[w]|; and correctness in that (except for
+               level description as needed for the extensions to this protocol                       w
+                                                                                    negligible probability) TSetRetrieve(TSet,stag) returns T[w]
+               we introduce in the following sections.                              for stag = TSetGetTag(K ,w), and it returns an empty set
+                                                                                                               T
+                 The basis of OXT is the following simple search algorithm          for all other stag values.
+               over unencrypted databases. The algorithm uses two types                Next, we note that using the protocol described above
+               of data structures. First, for every keyword w there is an           leads to signiﬁcant leakage in that the xtrap value allows E to
+               inverted index (a list) Iw pointing to the indices ind of all        check whether xtag = f(xtrap,ind) ∈ XSet for each value ind
+               documents that contain w. Then, for every document ind               ever seen by E, revealing correlation statistics between each
+               there is a list L    of all keywords contained in document
+                                ind                                                 s-term and each x-term ever queried by C. This motivates
+               ind.  To search for a conjunction w¯ = (w ,...,w ), the
+                                                              1       n             the main mechanism in OXT, i.e. the instantiation of the
+               client chooses the estimated least frequent keyword 2 in w¯,         function f via a two-party computation in which E inputs an
+                ay w , and checks for each ind ∈ I        whether w ∈ L ,
+               s     1                                w              i     ind      encrypted value ind, C inputs xtrap and the ind-decryption
+                                                       1
+               i = 2,...,n. If this holds for all 2 ≤ i ≤ n then ind is added       key, and E gets the value of xtag = f(xtrap,ind) without
+               to the result set. As a performance optimization, instead            learning either the xtrap or ind values themselves. For this
+               of maintaining a list L     for each ind, one can ﬁx a hash
+                                        ind                                         OXT uses a blinded DH computation over a group G (with
+               function f and keep a data structure representing the set            generator g of prime order p). However, to avoid the need
+               X = {f(w,ind) : w ∈ W,ind ∈ DB(w)}. Thus, the check                  for interaction between E and C in the Search phase, the
+               w∈L canbereplacedwiththecheckf(w,ind)∈X. Pro-
+                     ind                                                            blinding factors are pre-computed and stored as part of the
+               tocol OXT adapts this algorithm to the encrypted setting as          tuples in the TSet lists. Speciﬁcally, indexes ind are replaced
+               follows (we start with the description of a simpliﬁed version,       in the computation of f with dedicated per-record values
+               corresponding to protocol BXT in [9], and then move to the           xind ∈ Z∗ (computed as F (K ,ind) where F is a PRF
+                                                                                              p                   p    I               p
+               more speciﬁc details of OXT).                                                       ∗                                      Fp(K ,w)
+                                                                                    with range Z ), xtrap(w)’s are implemented as g            X
+                 Foreachkeywordw ∈ Waninvertedindex(corresponding                                  p
+                                                                                    (K andK aresecretkeyskeptbyC),andxtagisre-deﬁned
+                                                                                       I        X
+               to Iw above), referred to as TSet(w), is built pointing to all       as (xtrap(w))xind. The blinding factor in the underlying two-
+               the ind values of documents in DB(w). Each TSet(w) is iden-          party computation is pre-computed during EDBSetup and
+               tiﬁed by a string called stag(w) and ind values in TSet(w)           stored in the TSet. Namely, each tuple corresponding to a
+               are encrypted under a secret key Ke. Both stag(w) and                keyword w and document index ind contains a blinded value
+               Ke are computed as a PRF applied to w with secret keys               y =xind·z−1 for xind = F (F ,ind) where z is an element
+                                                                                      c          c               p   I              c
+               knowntoC only. In addition, a data structure called XSet is          in Z∗ derived (via a PRF) from w and a tuple counter c
+               built as an“encrypted equivalent”of the above set X as fol-               p
+                                                                                    (this counter, incremented for each tuple in the tuple list
+               lows. First, for each w ∈ W, a value xtrap(w) = F(KX,w)              associated with w, ensures independence of each blinding
+               is computed where KX is a secret PRF key then for each               value zc).
+               ind ∈ DB(w) a value xtag = f(xtrap(w),ind) is added to                  Duringsearch, the server E needs to compute the xtag val-
+               XSet where f is an unpredictable function of its inputs (e.g.,             Fp(K ,w )·xind
+                                                                                    ues g      X i       for each xind in TSet(w1) and then test
+               2                                                                    these for membership in XSet. To enable this the client
+                The estimated least frequent keyword is called the conjunction’s s- sends, for the c-th tuple in t, an n-long array xtoken[c] de-
+               term; the other terms in a conjunction are called x-terms.
+                                                                                878
+                EDBSetup(DB,RDK)
+                Key Generation. D picks key KS for PRF Fτ and keys KT,KX,KI for PRF Fp. Fτ and Fp are PRF’s which output strings
+                                    τ       ∗
+                in respectively {0,1} and Zp, and τ is a security parameter.
+                   • Initialize XSet to an empty set, and initialize T to an empty array indexed by keywords from W.
+                   • For each w ∈ W, build the tuple list t and insert elements into set XSet as follows:
+                        – Initialize t to be an empty list.
+                        – Set strap ← Fτ(KS,w) and (Kz,Ke) ← (Fτ(strap,1),Fτ(strap,2)).
+                        – Initialize c ← 0; then for all ind in DB(w) in random order:
+                             ∗ Set rdk ← RDK(ind), e ← Enc(Ke,(ind|rdk)), xind ← Fp(KI,ind).
+                             ∗ Set c ← c+1, zc ← Fp(Kz,c), y ← xind·z−1. Append (e,y) to t.
+                                                                          c
+                                            Fp(K ,w)·xind
+                             ∗ Set xtag ← g      X        and add xtag to XSet.
+                        – T[w]←t.
+                   • Create (TSet,KT) ← TSetSetup(T), and output key K = (KS,KX,KT,KI) and EDB = (TSet,XSet).
+                Search protocol
+                Client C on input K deﬁned as above and a conjunctive query w¯ = (w1,...,wn):
+                   • Sets stag ← TSetGetTag(KT,w1); strap ← Fτ(KS,w1), (Kz,Ke) ← (Fτ(strap,1),Fτ(strap,2)).
+                   • Sends to the server E the message (stag,xtoken[1],xtoken[2],...) where xtoken[·] are deﬁned as:
+                        – For c = 1,2,..., until E sends stop:
+                                                                          Fp(K ,w )·zc
+                             ∗ Set zc ← Fp(Kz,c) and set xtoken[c,i] ← g      X i      for i = 2,...,n.
+                             ∗ Set xtoken[c] ← (xtoken[c,2],...,xtoken[c,n]).
+                Server E on input EDB = (TSet,XSet) responds as follows:
+                   • Retrieve t ← TSetRetrieve(TSet,stag) from TSet.
+                   • For c = 1,...,|t| do:
+                        – Retrieve (e,y) from the c-th tuple in t
+                        – If ∀i = 2,...,n : xtoken[c,i]y ∈ XSet then send e to client C.
+                   • When last tuple in t is reached, sends stop to C and halt.
+                For each received e client C computes (ind|rdk) ← Dec(Ke,e) and outputs (ind,rdk).
+                                                   Figure 1: OXT: Oblivious Cross-Tags SSE Scheme
+                                          Fp(K ,w )·zc
+               ﬁned by xtoken[c,i] := g        X i     , i = 1,...,n, where          3.   MULTI-CLIENTSSE
+               zc is the precomputed blinding derived by C from w (via
+               a PRF) and the tuple counter c. E then performs the T-                  WepresentanextensionoftheOXTprotocolforthemulti-
+               set search to get the results for w1, and for each c it ﬁl-           client SSE (MC-SSE) setting described in the introduction
+                                                             yc
+               ters the c-th result by testing if xtoken[c,i]   ∈XSet for all        and in more detail below. The extension preserves the func-
+                                                                          yc
+               i = 2,...,n. This protocol is correct because xtoken[c,i]     =       tionality of OXT, supporting any boolean query, and superb
+                F (K ,w )·z ·xind·z−1    F (K ,w )·xind
+               g p   X i c        c  =g p X i          , meaningthattheserver        performance, while securely serving multiple clients, all of
+               correctly recomputes the pseudorandom values in the XSet.             which can behave maliciously.
+               Putting these ideas together results in the OXT protocol of           Multi-ClientSSE Setting. InMC-SSEthereistheowner
+               Figure 1. Note that C sends the xtoken arrays (each holding           D of the plaintext database DB, an external server E that
+                                            Fp(K ,w )·zc
+               several values of the form g      X i     ) until instructed to       holds the encrypted database EDB, and clients that receive
+               stop by E. There is no other communication from server to             tokens from D in order to perform search queries at E. In
+               client (alternatively, server can send the number of elements         other words, D is outsourcing her search service to a third
+               in TSet(w) to the client who will respond with such number            party but requires clients to ﬁrst obtain search tokens from
+               of xtoken arrays).                                                    her. Her goal is to ensure service to clients via E while leak-
+               Note. The OXT protocol in Figure 1 derives keys Ke,Kz                 ing as little as possible information to E about the plaintext
+               slightly diﬀerently than in the OXT description of [9]. The           data and queries, and preventing clients from running any
+               modiﬁedkeyderivationisclosertowhatweneedforMC-OXT                     other DB queries than those for which D issued them a to-
+               and OSPIR-OXT protocols presented in the following sec-               ken. This is a natural outsourcing setting of increasing value
+               tions, without aﬀecting the functionality or security of OXT.         in cloud-based platforms, and it was described by Chase and
+                                                                                     Kamara [11] as an SSE with controlled disclosure.
+                                                                                       Formally, the MC-SSE setting changes the syntax of an
+                                                                                     SSE scheme by including an additional algorithm GenToken
+                                                                                879
+               which on input the secret key K, generated by the data               for i = 2,...,n, are computed by C as (bxtrap )zc.          On
+                                                                                                                                          i
+               owner D in the EDBSetup procedure, and a boolean query               the receiving side, E veriﬁes the authenticity of env and de-
+               ψ(w¯), submitted by client C, generates a search-enabling            crypts it to ﬁnd stag, which it uses to retrieve TSet(w ), and
+                                                                                                                                            1
+               value token. Then, procedure Search is executed by server E          ρ2,...,ρn. The only change from OXT is that the operation
+                                                                                               y                               y/ρi
+               on input EDB, but instead of the client C running on input           xtoken[c,i] is replaced with bxtoken[c,i]      .
+               K and query ψ(w¯) (as in SSE), C runs on input consist-              Note (masking the size of TSet(w1)). MC-OXT leaks to
+               ing only of the search token token. Correctness is deﬁned            C the size of TSet(w1) = DB(w1) given by the number of
+               similarly to the SSE case, namely, assuring (except for neg-         bxtoken vectors requested by E. Note that the exact size of
+               ligible error probability) that C’s output sets DB(ψ(w¯)) and        this set can easily be masked by E requesting more bxtoken
+               RDK[DB(ψ(w¯))]. Security is treated in Section 5.                    values from C than needed. We observe that some form of
+                                                                                    leakage on the frequency of the least frequent term in the
+               3.1    TheMC-OXTProtocol                                             conjunction appears to be inherent even for plaintext search
+                 Wedescribe the changes to OXT from Figure 1 needed to              algorithms. Indeed, it is likely (though there seem to be no
+               support boolean queries in the MC-SSE setting. As before,            proven lower bounds) that running time will be noticeably
+               the protocol is described for conjunctions with the adapta-          diﬀerent for conjunctions with all terms being infrequent
+               tion to boolean queries described in Section 4.2.                    from the case that all terms are very frequent, except if
+               EDBSetup(DB,RDK). This pre-processing phase is identical             short searches are artiﬁcially padded to full database size
+               to the one in OXT except for the addition of a key KM                (or if conjunctions are pre-computed). Two considerations
+                                                                                    in masking the size of TSet(w ) are that (i) the masked
+               shared between D and E. The output from this phase is K =                                              1
+               (K ,K ,K ,K )keptbyDandEDB=(K ,TSet,XSet)                            size should be chosen as a step function of |TSet(w1)| (and
+                  S   X    T    M                              M
+               stored at E.                                                         not, say, a ﬁxed linear function); (ii) During search, E should
+               GenToken(K,w¯). ThisisthenewMC-speciﬁcphaseinwhich                   return to C all results matching a query only after E received
+               D,usingkeyK,authorizesC foraconjunctionw¯ = w ,...,w                 all the bxtoken vectors from C; indeed, sending the results
+                                                                      1       n     as soon as they are found to match the query would leak
+               andprovidesC withthenecessarytokenstoenablethesearch                 information on |TSet(w)| to C (since no ind’s will be returned
+               at E. We assume w1 to be the s-term (and chosen by D who             after C sends |TSet(w)| tokens). In the full version [20] we
+               has knowledge of term frequencies). Speciﬁcally, D performs           how a strategy applied by D during EDBSetup to allow E
+               thefollowing operations. Shesetsstag ← TSetGetTag(K ,w )             s
+                                                                          T   1     to send results as soon as they are found while avoiding the
+               and strap ← F (K ,w ), same as C does in OXT. Then,
+                               τ   S    1                                           above leakage.
+               for i = 2,...,n, she picks ρ     ← Z∗ and sets bxtrap ←
+                                              i       p                  i
+                Fp(K ,w )·ρ
+               g     X i i. Finally, she sets
+               env ← AuthEnc(K ,(stag,ρ ,...,ρ )) and outputs token =               4.    OUTSOURCEDSYMMETRICPIR
+                                  M          2      n
+               (env,strap,bxtrap ,...,bxtrap ) (which C uses in the search
+                                 2            n                                        TheOSPIR(forOutsourcedSymmetricPIR)settingaug-
+               phase).                                                              ments the MC-SSE setting with an additional requirement:
+                 To see how this enables search as in OXT, ﬁrst note that           ThedatabaseownerDshouldlearnaslittleaspossibleabout
+                                Fp(K ,w )
+               with xtrap = g       X i , i = 2,...,n, the client can pro-
+                          i                                                         queries performed by clients while still being able to verify
+                                 Fp(K ,w )·zc
+               duce the values g      X i      needed in the Search phase of        the compliance of these queries to her policy. Here we extend
+               OXT. Hence, D could just provide the xtrapi values to C.             MC-OXTtothissettingbyaugmentingthetokengeneration
+               However, D needs to be able to sign (or MAC) these values            component GenToken to support“blinding”by the client of
+               so that E can check that C is authorized to this query and,          query requests sent to D, and adding a mechanism for D
+               e.g., did not truncate a conjunction or mix parts from dif-          to enforce policy-compliance of the query when only hav-
+               ferent queries. Signing the plain xtrap values does not work         ing access to their blinded versions. OSPIR-OXT supports
+               since these values must not be seen by E (it would allow E           attribute-based policies where D learns information about
+               to learn information from unauthorized searches). The so-            queryattributes but nothing about values (e.g., D may learn
+               lution is to provide C with a homomorphic signature that C           that a query includes a last-name, a zipcode and two words
+               canconvertintoindividualsignaturesforalltokenssenttoE.               from a text ﬁeld but nothing about the actual queried key-
+               This is accomplished as follows: D picks one-time blinding           words). The security model adds D as a new adversarial
+               factors ρ2,...,ρn and provides C with blinded (or MAC’ed)            entity trying to learn C’s hidden query values. Refer to the
+               xtrap values bxtrap = xtrapρi for j = 2,...,n, while pro-            introduction for more discussion about the OSPIR setting
+                                   i         i
+               viding the blinding factors (ρ2,...,ρn) to E in an encrypted         and attribute-based policies.
+                                                                 Fp(K ,w )·zc
+               and authenticated envelope env. To produce g           X i           OSPIR SSE Syntax. An OSPIR-SSE scheme replaces
+               during Search, C will compute bxtrapzc and E will raise this
+                                                      i                             the GenToken procedure which in MC-SSE is executed by
+               value to 1/ρi. Security relies on the fact that if C provides E      the data owner D on the cleartext client’s query w¯, with a
+               with values other than those given by D, then when raised            two-party protocol between C and D that allows C to com-
+               to 1/ρi by E (where ρi is random and unknown to C) the re-           pute a search-enabling token without D learning w¯. In addi-
+               sulting values will not correspond to elements of XSet except        tion, D should be able to enforce an attribute-based query-
+               with negligible probability.                                         authorization policy on these queries. For this, we assume
+               Search Protocol. TheSearchprotocolreﬂectstheabovechanges:            that keyword set W is partitioned into m attributes, and
+               Ontoken=(env,strap,bxtrap ,...,bxtrap ), C computes(K ,K )                                                          3
+                                              2          n                  z    e  let I(w) denote the attribute of keyword w.      An attribute-
+               from strap as in OXT. Then, it sends to E the value env as           based policy is represented by a set of attribute-sequences
+               well as the sequence bxtoken[1],bxtoken[2],... which contains        3 Weassume that the string representing w has its attribute encoded
+               the same values as xtoken[1],xtoken[2],... in OXT up to the          into it, i.e. w = (i,val) for i = I(w), so that Ryan as a ﬁrst name is
+               blinding exponents ρi. Speciﬁcally, the values bxtoken[c,i],         distinguished from Ryan as a last name.
+                                                                                880
+               P s.t. a conjunctive query w¯ = (w ,...,w ) is allowed by            (Since we use strap as a key to F in deriving (K ,K ), we
+                                                     1      n                                                          τ                z   e
+               policy P if and only if the sequence of attributes av(w¯) =          assume that a PRF F key can be extracted from a random
+                                                                                                           τ
+               (I(w ),...,I(w )) corresponding to this query is an element          group element.)
+                    1         n
+               in set P. Using this notation, the goal of the GenToken pro-           We also make a speciﬁc assumption on the implemen-
+               tocol is to let C compute token corresponding to its query           tation of the function TSetGetTag used to derive stag(w)
+               w¯ only if av(w¯) ∈ P. Reﬂecting these goals, an OSPIR-SSE           value, i.e., the handle pointing to the set TSet(w) which
+               scheme is a tuple Σ = (EDBSetup,GenToken,Search) where               is computed as TSetGetTag(KT,w). First, we assume that
+               EDBSetup is an algorithm run by D on inputs (DB,RDK)                 TSetGetTag is implemented using PRF F . Second, to en-
+                                                                                                                                G
+               with outputs (EDB,K), GenToken is a protocol run by C on             able enforcement of attribute-based policies we assume that
+               input w¯ and by D on input (P,K), with C outputting token            the key KT in TSetGetTag is formed by an array of FG
+               or ⊥ and D outputting av, and Search is a protocol run by            keys KT = (KT[1],...,KT[m]), where KT[i] is the key to be
+               C on input token and by E on input EDB, with C outputting            used only for keywords with attribute I(w) = i. For nota-
+               a set of ind’s matching his query and the corresponding set          tional convenience we deﬁne a PRF Fm s.t. Fm(K ,w) =
+                                                                                                                             G       G     T
+               of rdk’s.                                                            F (K [I(w)],w), and we set stag(w) = TSetGetTag(K ,w)
+                                                                                     G    T                                                  T
+                                                                                    to Fm(K ,w). Since we explicitly handle the keys used in
+                                                                                        G     T
+               4.1    TheOSPIR-OXTProtocol                                          the TSetGetTag implementation we also need to modify the
+                                                                                                                                              0
+                 TheOSPIR-OXTprotocoladdressestheaboveOSPIRset-                     TSet API: We will initialize TSet as TSet ← TSetSetup (T),
+               ting by enhancing MC-OXT with query-hiding techniques                where T indexes the tuple lists t(w) not by the keywords w
+               thatallow D toauthorizequerieswithoutlearningthequeried              but by the corresponding stag(w) values. (This API change
+                                                                                    does not aﬀect existing TSet implementations [
+               values. Most changes with respect to MC-OXT are in the                                                                   9] because
+               GenToken protocol. EDBSetup remains mostly unchanged                 they internally use stag(w) = TSetGetTag(KT,w) to store
+               except for the implementation of the PRFs, and Search is             the t(w) list.)   The PRF we use in the computation of
+               essentially unmodiﬁed.                                               xtag’s will be similarly attribute-partitioned. Namely, KX
+                                                                                    is also an array of m independent F       keys K    =(K [1],
+                 We introduce the two main tools used in the design of                                                     G         X        X
+               GenToken. First, instead of the use of regular PRFs for stag         . . . , KX[m]), the xtrap value for keyword w is deﬁned as
+                                                                                    Fm(K ,w), and the xtag corresponding to keyword w and
+               and xtag computations in OXT and MC-OXT, the OSPIR-                   G     X
+                                                                                    index xind is set to (Fm(K ,w))xind.
+               OXT protocol uses an an “oblivious PRF” (OPRF) compu-                                       G    X
+               tation between C and D. A PRF F(K,w) is called oblivious               InOSPIR-OXT,therearetwotwo-partyprotocolsinvolved
+               [26] if there is a two-party protocol in which C inputs w,           in the computation of FG. In the ﬁrst case, the protocol im-
+               D inputs K, C learns the value of F(K,w) and D learns                plements an OPRF computation in which C enters an input
+                                                                                    w, D enters a key K , and the output is F (K ,w) for C and
+               nothing. A simple example is the Hashed DH OPRF which                                    S                      G    S
+               we use in our implementation of the OSPIR-OXT protocol,              ⊥for D. In the second case, Fm is computed via a protocol,
+                                                                                                                   G
+               deﬁned as F(K,x) = H(x)K where H is a hash function                  that we call a shared OPRF (S-OPRF), in which C inputs w
+               onto G \ {1} where G is a group of prime order p, and K              and i = I(w), and D enters a key K and additional input
+               is chosen at random in Z∗. In this case, the OPRF proto-             ρ ∈ Z∗; the output learned by D is i, and the output learned
+                                          p                                               p
+                                                     r                      ∗       by C is (Fm(K,x))ρ = (F (K[i],x))ρ. Note that the pair of
+               col consists of C sending a = H(x) for random r in Z ,                         G                G
+                                                                            p                    m        ρ
+                                       K                           K      1/r       outputs ((F (K,x)) ,ρ) can be seen as a secret sharing of
+               D sending back b = a       and C computing H(x)        as b   .                  G
+                                                                                    Fm(K,x), hence the name shared-OPRF. OSPIR-OXT uses
+               The second tool used in GenToken is needed to enforce an              G
+               attribute-based policy and guarantee that only queries on au-        the OPRF protocol to let C learn the strap value correspond-
+                                                                                    ing to the w s-term, i.e. strap = F (K ,w ), without D
+               thorized attributes can generate valid tokens for search at                       1                         G    S   1
+               E. To enforce such policies we have D use a diﬀerent key for         learning w1. The S-OPRF protocol is used to let C com-
+                                                                                                                    m           ρ1
+                                                                                    pute a blinded stag bstag = [F    (KT,w1)]     and the blinded
+               each possible attribute; for example, when a stag (or xtag)                                         G
+                                                                                                        m           ρi
+                                                                                    xtraps bxtrap = [F (KI,wi)] , for i = 2,...,n. The func-
+               is requested for attribute ‘zipcode’ the key that D inputs                        i      G
+               into the OPRF computation is diﬀerent than the key used              tionality of the blinding ρi is the same as in the case of
+               for attribute ‘name’ or attribute ‘text’. The point is that          MC-OXT,namely,asaformofhomomorphicsignaturebind-
+               if C claims to be querying zipcode but actually enters the           ing and authorizing stag and xtrap’s that E can verify. As
+               keyword“Michael”into the OPRF computation, the output                in MC-OXT, E will receive the corresponding (de)blinding
+               for C will be the tag F(Kzip, “Michael”), where Kzip is a            factors ρ1,...,ρn in the authenticated envelope env.
+               zipcode-speciﬁc key, which will match no tag stored at E.              To simplify the description of OSPIR-OXT, we assume
+                 To obtain OSPIR-OXT we combine the above two tools                 that both OPRF and S-OPRF protocols take a single round
+               with an authorization mechanism similar to the one used in           of interaction between C and D, as is indeed the case for
+               MC-OXT via a homomorphic signature (using the ρi expo-               several eﬃcient OPRF’s of interest [14, 21], including the
+               nents) for binding together the n tokens corresponding to            Hashed Diﬃe-Hellman OPRF [22] used in our implementa-
+               an n-term conjunctive query in a way that E can verify. We           tion below. We denote C’s initial computation in the OPRF
+               describe the changes to MC-OXT (deﬁned via Figure 1 and              protocol as (a,r) ← OPRF.C1(x) (a is the value sent to D
+               the modiﬁcations in Section 3) required by OSPIR-OXT. We             and r is randomness used by C), D’s response computation
+               ﬁrst replace the PRF Fp used in computing xtrap and xtag             as b ← OPRF.D(K,a), and C’s local computation of the ﬁnal
+               values with a PRF F which maps w directly onto the group             outputas OPRF.C2(b,r). Weuse thecorresponding notation
+                                    G                                               in the case of S-OPRF, except that S-OPRF.D takes as an
+               Ggenerated by g, i.e. we set xtrap as F (K ,w) instead of
+                F (K ,w)                        xind    G    X                      input a triple (K,i,a) where i is an attribute and outputs a
+               g p   X   , hence xtag = (xtrap)     will now be computed as
+                          xind            Fp(K ,w)·xind                             pair (b,ρ). See below for a simple implementation of these
+               F (K ,w)       instead of g     X       . Wesimilarly replace
+                G    X                                                              procedures for the case of the Hashed Diﬃe-Hellman OPRF.
+               the PRFFτ used in computing the strap value with the PRF
+               F , i.e. we set strap as F (K ,w) instead of F (K ,w).
+                G                          G    S                  τ    S
+                                                                               881
+                GenToken protocol
+                   • Client C, on input w¯ = (w1,...,wn) where w1 is chosen as s-term:
+                         – Compute (a ,r ) ← OPRF.C (w ), and (a ,r ) ← S-OPRF.C (w ) for each i = 1,...,n.
+                                       s  s            1   1         i  i              1  i
+                         – Send (a ,a ,...,a ) and av = (I(w ),...,I(w )) to D.
+                                   s  1     n                1         n
+                   • Data owner D, on input policy P and master key K = (KS,KX,KT,KI,KP,KM):
+                         – Abort if av is not in policy set P. Otherwise set av as D’s local output.
+                         – Compute b ←OPRF.D(K ,a ).
+                                      s               S s
+                         – Compute (b ,ρ ) ← S-OPRF.D(K ,I ,a ), and (b ,ρ ) ← S-OPRF.D(K ,I ,a ) for i = 2,..,n.
+                                       1  1                  T  1   1        i  i                  X i i
+                         – Set env ← AuthEnc(K ,(ρ ,ρ ,...,ρ )) and send (env,b ,b ,...,b ) to C.
+                                                 M 1 2         n                   s  1     n
+                   • C outputs token = (env,strap,bstag,bxtrap ,...,bxtrap ) where strap ← OPRF.C (b ,r ),
+                                                               2          n                         2  s  s
+                      bstag ← S-OPRF.C (b ,r ), and bxtrap ← S-OPRF.C (b ,r ) for i = 2,...,n.
+                                        2 1 1               i             2 i i
+                                                        Figure 2: Token Generation in OSPIR-OXT
+               OSPIR-OXT Speciﬁcation. With the above ingredients                    exponents in Z∗, respectively (k ,...,k ) and (e ,...,e ),
+                                                                                                     p                  1       m         1       m
+               andnotationwespecifyOSPIR-OXTonthebasisofMC-OXT                       where m is the number of attributes. Also, because of the
+               via the following changes.                                            speciﬁc OPRF instantiation we equate as to a1 in C’s mes-
+               Keys. Select key K      for F ; K    and K     for Fm; K for          sage of the GenToken protocol, instead of computing these
+                                    S       G     T         X       G     I          two blinded versions of keyword w separately, as in Fig-
+               F ; and K     for the authenticated encryption scheme.                                                       1
+                p         M                                                          ure 2.
+               EDBSetup. Follow the EDBSetup procedure of MC-OXT ex-
+               cept for computing strap ← F (K ,w) and
+                                               G    S
+               xtag ← (Fm(K ,w))xind,andforimplementingtheTSetGetTag
+                          G    X                                                     4.2     Supporting Boolean Queries
+               procedureasTSetGetTag(K ,w) = Fm(K ,w),whichmeans
+                                             T         G    T                           For simplicity we presented our protocols for the case
+               that we compute stag(w) ← Fm(K ,w); index t(w) in T
+                                                 G    T                              of conjunctions. The protocols can be readily adapted to
+               by stag(w) instead of by w itself; and generate TSet using            search boolean queries in “searchable normal form (SNF)”,
+                                                         0
+               the modiﬁed API procedure TSetSetup (T).                              i.e., of the form“w1∧φ(w2,...,wm)”(intendedtoreturn any
+               GenToken protocol. This is the main change with respect               document that matches keyword w and in addition satis-
+                                                                                                                            1
+               to OSPIR-OXT; it follows the above mechanisms and is pre-             ﬁes the formula φ on the remaining keywords). In this case,
+               sented in Figure 2.                                                   OXTanditsderivativeschange onlyin theway E determines
+               Search protocol. Same as MC-OXT except that stag is not               which tuples match a query (i.e., which values e it sends
+               included under env but rather it is provided to E by C as             back to C). Speciﬁcally, in OXT the c-th tuple matches if
+                                                               1/ρ                                           y/ρi
+               bstag from which E computes stag ← (bstag)         1.                 and only if xtoken[c,i]      ∈XSet for all 2 ≤ i ≤ n. Instead,
+                                                                                     for boolean queries as above, E will have a set of boolean
+                                                                                     variables v ,...,v    and will set v to the truth value of the
+               Instantiation via Hashed Diﬃe-Hellman OPRF. Our                                   2       n               i
+                                                                                                           y/ρi
+               implementation and analysis of OSPIR-OXT assumes the use              predicate xtoken[c,i]      ∈XSet. A tuple is matching if and
+               of Hashed DH OPRFmentioned above, namely, F (K,x) =                   only if the result of evaluating φ on these values returns
+                                                                    G                true. The complexity of boolean search is same as for con-
+               (H(x))K. TheinstantiationsofOPRFandS-OPRFprotocols
+               in this case are as follows. OPRF.C (x) and S-OPRF.C (x)              junctions, i.e., proportional to |DB(w1)|, and leakage to E
+                                                      1                    1         is the same as for a conjunctive query on the same set of
+               both pick random r in Z∗, set a ← (H(x))r, and output
+                                           p                                         keywords except that E also learns the expression φ being
+               (a,r). Procedure OPRF.D(K,a), where K ∈ Z∗ is a key for
+                                                                 p                   evaluated. See [9] for details and support of other forms of
+               PRF F , outputs b ← aK. Procedure S-OPRF.D(K,i,a),
+                       G                                                             boolean queries.
+               where i ∈ {1,...,m} and K = (K[1],...,K[m]) ∈ (Z∗)m
+                                                                           p            In the OSPIR-SSEsetting, supporting boolean queries re-
+               is a key for PRF Fm, picks random ρ in Z∗, computes
+                                     G                           p                   quires policies that are deﬁned in terms of such queries.
+               b ← aK[i]·ρ, and outputs (b,ρ). Procedures OPRF.C (b,r)
+                                                                         1           Speciﬁcally, a policy will determine a set of allowed pairs
+               and S-OPRF.C (b,r) both output b1/r. Note that if parties             (ψ,I) where ψ is a symbolic boolean expression and I a
+                              1
+               follow the protocol, C’s ﬁnal output is equal to (H(x))K =            sequence of attributes, one per each variable in ψ. Thus,
+               F (K,x) in the OPRF protocol, while in the S-OPRF proto-              leakage to D will include I (as in the case of conjunctions)
+                G
+               col it is equal to (H(x))K[i]·ρ, which is equal to (Fm(K,x))ρ         plus the symbolic expression being evaluated.
+                                                                    G
+               if i = I(x). These OPRF and S-OPRF protocols emulate
+               their corresponding ideal functionalities in ROM under so-
+               called One-More Gap Diﬃe-Hellman assumption [22], see                 4.3     Computational Cost
+               Section 5.                                                               HereweprovideanoperationscountforOSPIR-OXTwhen
+                 Figure 3 shows the OSPIR-OXT scheme instantiated with               instantiated with the DH-based OPRF noting its (mild)
+               the above Hashed DH OPRF. It helps to visualize the entire            overhead over the original OXT protocol from [9]. The com-
+               protocol and it reﬂects our actual implementation. In Fig-            putational cost of OSPIR-OXT is easy to quantify by inspect-
+               ure 3 we denote keys K     and K of PRF Fm by vectors of              ing Figure 3 in Page .
+                                        T        X            G
+                                                                                 882
+                The cost of pre-processing (EDBSetup) is dominated by           choosing the s-term as a term with high-entropy to keep
+              operations related to the group G, mainly exponentiations:        TSet(w1) small, also choose the evaluation order of x-terms
+              For every w ∈ W:                                                  of an SNF expression such that it maximizes the proba-
+                 1. One hashing operation, H(w), of keyword w into an           bility of early termination and, hence, reduces the number
+                    element of the group G.                                     of (expected) exponentiations executed by E, e.g., for con-
+                                                                                junctions order the x-terms in descending order of entropy
+                                                             K
+                 2. Twoexponentiations: strap(w) = (H(w)) S andstag(w) = (equivalently, ascending order of frequency).
+                    (H(w))ki.                                                   Note (frequency ordering). In the OSPIR setting the client
+                                                                     e ·xind    may not know the frequency of terms in the database and
+                 3. ForeveryindinDB(w): OneexponentiationH(w) i
+                    for computing an XSet element.                              Dwill not know the query values to choose such terms opti-
+                                                                                mally. Thus, theexact mechanismfor determiningtheabove
+              The ﬁrst two items are speciﬁc to OSPIR-OXT while the             ordering will depend on the speciﬁc setting. In our imple-
+              third is from the original OXT protocol, except that here         mentation we decide on ordering based on typical entropy of
+              the base for exponentiation is changed from the generator g       attributes; e.g., assuming last names have more entropythan
+              in OXT to the value H(w). Hence the overhead introduced           names, and names more entropy than addresses, etc. (note
+              by OSPIR-OXT is given by the ﬁrst two items and the vari-         that an attribute-based ordering is more privacy-preserving
+              able base. Importantly, the overhead for the ﬁrst two items       for the client than a value-based one).
+              is only linear in |W|, typically much smaller than the num-
+              ber of exponentiations in OXT (item 3), namely one per pair       4.4    Implementation and performance
+              (w,ind) for ind ∈ DB(w). As for the latter exponentiations,         Thepracticality of the proposed schemes was validated by
+              while the bases are variable, each H(w) is typically used         experiments on DBs which included e.g. English-language
+              with a very large number of exponentiations (as the number        Wikipedia (13,284,801 records / 2,732,311,945 indexed tu-
+              of documents containing w) hence allowing for signiﬁcant          ples), and a synthetic US census database (100 million records
+              same-base optimizations. The hashing of w into the group          / 22,525,274,592 index tuples, resulting in EDB with 1.7 TB
+              G (item 1) is modeled as a random oracle, hence it rules          TSet and 0.4 TB XSet). To illustrate search eﬃciency, in
+              out algebraic implementations such as gh(w). For the ellip-       the census DB case we executed complex queries like
+              tic curves groups we use, H is realized by sampling a ﬁeld              SELECTidWHEREfname=’CHARLIE’AND
+              element e and a bit b from a PRNG seeded with w until (e,b)                sex=’Female’ANDNOT(state=’NY’OR
+              is the compressed representation of a valid group element.                 state=’MA’ORstate=’PA’ORstate=’NJ)
+              Depending on the particular nature of a curve, the generic
+              square root algorithms required in solving the Weierstrass        in about 4 seconds on an IBM Blade dual Intel 4-core Xeon
+              equation, though, can be extremely ineﬃcient: Our origi-          processor and storage provided by a (low-end) 6.2TB RAID-
+              nal implementation for the chosen NIST 224p curve using           5 storage system. Preprocessing of such large DBs (TSet
+              OpenSSL’s standard algorithms was more than an order of           andXSetcreation) has been feasible by, among other things,
+              magnitude slower than a normal exponentiation and consid-         optimization of common-base exponentiations, achieving ag-
+              erably more when common-base optimization is used. By             gregated (parallel) rate of about 500,000 exp.’s/sec. for the
+              implementing our own algorithm inspired by [4] and opti-          NIST 224p elliptic curve.
+              mizing it for this particular ﬁeld, we could reduce the cost        See [8] for details on implementation and performance as
+              down to the order of an exponentiation. Once all these op-        well as for the extension of OXT and OSPIR-OXT to support
+              timizations are in place, the performance of OSPIR-OXT is         dynamicdatabases (where documents can be added, deleted
+              remarkable as shown in Section 4.4 and, in much more de-          and modiﬁed).
+              tails, in a companion paper [8].
+                The dominating cost of GenToken is just 2n+1 exponen-
+                                                                                5.   SECURITY
+              tiations for the client and n + 1 for D.
+                Finally, the cost of query processing between C and E             Weanalyze security of the OSPIR-SSE scheme. We focus
+              (Search) on a n-term SNF expression is as follows:                on the OSPIR case as it is the more comprehensive setting
+                                                                                and it contains MC-SSE as a special case. The SSE-OXT
+                 1. C computes n − 1 exponentiations for each tuple in          protocol is analyzed in the SSE setting in [9].
+                    TSet(w )
+                           1
+                 2. E performs up to n−1 exponentiations for each element       5.1    Security and Correctness Defnitions
+                    in TSet(w ).                                                  SSE security deﬁnitions where the only adversarial entity
+                              1                                                 is server E are provided in prior work. Here we follow the def-
+              Note that C can apply same-base optimization to the expo-         initions from [9] - which in turn follow [11, 13] - and extend
+              nentiations since each term in the SNF expression has its         them to the MC setting by considering multiple malicious
+              own ﬁxed base. On the other hand, E cannot use same-base          clients and to the OSPIR setting by adding also the data
+              optimizations. However, note that as soon as one of the val-      owner D as an adversarial entity. All security deﬁnitions
+                             y/ρi
+              ues xtoken[c,i]     for a conjunction is found not to be in       follow the ideal/real model framework of secure computa-
+              XSet, the other terms for this conjunction do not have to         tion and are parametrized by a leakage function L bounding
+              be evaluated (hence avoiding the need for these exponen-          the information leaked to an adversarial party in addition to
+              tiations). Similarly, for general Boolean expressions, early      the intended output for that party. Speciﬁcally, we ask that
+              termination can be exploited to reduce costly computation.        whatever an adversary can do by running the real protocol
+              This highlights an important optimization for query process-      on data and queries chosen by the adversary, a simulator
+              ing (especially for queries with large TSet(w ) sets): Besides    can do solely on the basis of the leakage function.
+                                                          1
+                                                                            883
+               Correctness. We say that an OSPIR-SSE scheme Σ =                     Securityagainstadversarialdataowner. Securityagainst
+               (EDBSetup,GenToken,Search) is computationally correct if             a data-owner D models privacy of the client’s queries w¯
+               for every eﬃcient algorithm A, there is a negligible proba-          against malicious D, given an adaptive choice of the client’s
+               bility that the following experiment outputs 0. On inputs            queries. Similarly to the case of security against either the
+               (DB,RDK) and w¯(1),...,w¯(m) provided by A, execute (K,              client C or the EDB-storing server E, this security deﬁnition
+               EDB) ← EDBSetup(DB,RDK); and for i = 1,2,..., execute                also allows for leakage of some information L(w¯) regarding
+               protocol GenToken on C’s input w¯(i) and D’s inputs (P,K),           the query w¯ to D.
+                                            (i)
+               denote C’s output as token     , execute protocol Search be-            Definition 2. Let Π = (EDBSetup,GenToken,Search) be
+               tween C on input token(i) and E on input EDB and denote
+                                              (i)       (i)                         an OSPIR-SSE scheme. Given algorithms L, A, and S we
+               C’s outputs as a pair (indSet ,rdkSet ). Output 1 if for                                                     Π                Π
+                                                                                    deﬁne experiments (algorithms) Real (λ) and Ideal           (λ)
+                                            (i)          (i)             (i)                                                A                A,S
+               each i we have that indSet       = DB(w¯ ) and rdkSet        =       as follows:
+               RDK[DB(w¯(i))]. Otherwise output 0.
+                                                                                          Π                     λ
+                                                                                    Real (λ): Adversary A(1 ) can adaptively invoke any num-
+               Security against adversarial server E. Security against                    A
+                                                                                    ber of GenToken instances by specifying a query w¯ and inter-
+               adversarial (honest-but-curious)E hasbeenthefocusofprior             acting with party C running the GenToken protocol on input
+               SSE work. Adapting the deﬁnition of L-semantic security              w¯. At any point A can halt and output a bit, which the game
+               against adaptive attacks (by the server E) from [9] to our           uses as its own output.
+               setting is straightforward and is omitted here.                            Π                         λ
+                                                                                    IdealA,S(λ): Adversary A(1 ) can adaptively invoke any
+               Security against adversarialclients. Thedeﬁnitioncap-                number of GenToken instances as above, but for any query
+               tures the information leaked to a malicious client in addi-          w¯ which A speciﬁes, it interacts with S running on input
+               tion to the intended output DB(w¯) and the corresponding             L(w¯). As above if A halts and output a bit, the game uses
+               record-decrypting keys RDK[DB(w¯)]. The deﬁnition com-               this bit as its own output.
+               pares the real execution to an emulation of an interaction              We call Π L-semantically-secure against malicious data
+               with algorithm I-SSE , which models an ideal functional-             owner if for any eﬃcient alg. A there is an eﬃcient alg. S
+                                      L
+               ity of the OSPIR-SSE scheme instantiated with the leakage                         Π                    Π
+                                                                                    s.t. Pr[Real (λ)=1]−Pr[Ideal          (λ)=1] ≤ neg(λ).
+                                                                                                 A                    A,S
+               function L. The interactive algorithm I-SSE , running on
+                                                               L
+               local input (DB,RDK,P), answers queries w¯ ∈ W∗ by check-
+                                                                                    Note (non-collusion between D and E). We stress that even
+               ing if av(w¯) ∈ P. If the check veriﬁes, then it replies to          thoughthedataownerD canbearbitrarily malicious, we as-
+               this w¯ with a triple (DB(w¯),RDK[DB(w¯)],L(DB,w¯)), and if          sume that D and E do not collude. Indeed, client’s security
+               av(w¯) 6∈ P then it sends back a rejection symbol ⊥.                 in the OSPIR-OXT scheme we propose is not maintained
+                                                                                    against such collusion. Moreover, providing query-privacy
+                 Definition 1. Let Π = (EDBSetup,GenToken,Search) be                from D under collusion with E would have the (impracti-
+               an OSPIR-SSE scheme. Given algorithms L, A, and S =                  cal) cost of a single-server symmetric PIR protocol. The
+                                                                         Π
+               (S0,S1,S2) we deﬁne experiments (algorithms) Real (λ)                hospital example mentioned in the introduction, is a case
+                                                                         A
+               and IdealΠ (λ) as follows:                                           where such non-collusion requirement makes sense. Indeed,
+                          A,S
+                    Π          λ                                                    it is the hospital interest not to learn the queries: It helps
+               RealA(λ): A(1 ) chooses (DB,RDK,P), and the experiment               avoiding liability and complying with regulations as well as
+               runs (K,EDB) ← EDBSetup(DB,RDK). Adversary A can                     withstanding potential insider attacks. Similarly, for a ser-
+               then adaptively invoke instances of the protocol GenToken            vice providing private access to a database (e.g. to a patent
+               and Search, interacting with party D running on input K and          repository) preserving client privacy is part of its very busi-
+               P in the ﬁrst case and with party E running on input EDB             ness model. See also [
+               in the second case. Note that A can behave arbitrarily in all                                18].
+               these protocol instances. Let q be the number of GenToken
+                                                                                      .2   Security of OSPIR-OXT
+                                                                                    5
+               instances and let avi be D’s local output in the i-th instance.
+               If at any point A halts and outputs a bit b, the game outputs        Correctness of OSPIR-OXT. We ﬁrst argue that proto-
+               (b,av1,...,avq).                                                     col OSPIR-OXT is correct.
+                     Π            λ
+               IdealA,S(λ): A(1 ) chooses (DB,RDK,P) as above, while                   Theorem 3. The OSPIR-SSE scheme OSPIR-OXT in-
+               the experiment initializes S = (S0,S1,S2) by running st ←            stantiated with the Hashed Diﬃe-Hellman OPRF is compu-
+                   λ
+               S0(1 ). Subsequently, each time A invokes an instance of             tationally correct assuming that the DDH assumption holds,
+               protocol GenToken, it interacts with the experiment running          that the T-set implementation is computationally correct,
+               S1(st,P), whereas if A invokes an instance of protocol Search,       that F is a secure PRF, and assuming the Random Ora-
+                                                                                           p
+               it interacts with the experiment running S2(st). Both S1 and         cle Model for hash function H.
+               S2 algorithms are allowed to update the global simulator’s
+               state st while interacting with A. Both can issue queries w¯            Since T-set implementation is computationally correct,
+               to I-SSE (DB,RDK,P). Let q be the number of these queries            any correctness errors can only come from collisions in PRF
+                       L
+                                                                                    functions, including function F         eﬀectivelyusedincom-
+               and let av = I(w¯ ), where w¯ is the i-th query. As above,                                           K ,K
+                         i        i           i                                                                       X I
+               if at any point A halts and output a bit b, the game outputs         puting xtag values, deﬁned as FK ,K (w,ind) =
+                                                                                                                        X I
+                                                                                       m           Fp(K ,ind)
+               (b,av1,...,avq).                                                     (FG (KX,w))        I    . But assuming the PRF property of
+                 Wecall Π L-semantically-secure against malicious clients           F , and the PRFpropertyof Fm, which holds underDDHin
+                                                                                      p                             G
+               if for any eﬃcient algorithm A there is an eﬃcient algorithm         ROM,function FK ,K is a PRF too, and so collision prob-
+                                                                                                        X I
+               S s.t. the statistical diﬀerence between tuples (b,av1,...,avq)      ability is negligible, resulting in negligible error probability
+                                             Π             Π
+               output by experiments Real       and Ideal      is a negligible      over the execution of the OSPIR-OXT correctness experi-
+                                             A             A,S
+               function of the security parameter λ.                                ment.
+                                                                                884
+              Security of OSPIR-OXT. Using the security notions ex-           and the values as,a1,...,an. In the Hashed DH OPRF in-
+              plained above we describe the security properties of the        stantiation of this scheme in Figure 3, these values are formed
+              OSPIR-SSEschemeOSPIR-OXTinstantiatedwiththeHashed               as a ← H(w )rj for random r ’s in Z∗ (additionally, a is
+                                                                                  j        j                j       p                s
+              Diﬃe-Hellman OPRF, as shown in Figure 3. We ﬁrst state          set to a1). Since G is of prime order, every element in G\{1}
+              the OM-GDH security assumption required for the security        is a generator, and thus each aj is uniform in G. Thus D’s
+              of the OPRF and S-OPRF sub-protocols of this OSPIR-OXT          view of the GenToken protocol can be trivially simulated
+              instantiation.                                                  from L(w¯) = av(w¯).
+              One-More Gap Diﬃe-Hellman (OM-GDH). Let G =                     5.3   Extensions: Reducing Leakage to D
+              G beaprimeordercyclicgroupoforderp = p(λ)generated
+               λ
+              by g. We say that the One-More Gap Diﬃe-Hellman (OM-              In the full version [20] we show how to adapt OSPIR-OXT
+              GDH) assumption holds in G if Advddh(λ) is negligible for       to a setting where a third party, called a policy manager, au-
+                                                  G,A
+              all eﬃcient adversaries A, where Advddh(λ) is deﬁnedas the      thorizes queries while D can enforce them without learning
+                                                  G,A                         the policy, the boolean expression or the queried attributes;
+              probability that A wins the following game: (1) The game
+              chooses random t in Z∗ and two random elements h ,h in          only the numberof such attributes is learned by D. This set-
+                                    p                            1  2         ting is precisely what is needed to implement searches autho-
+              G; (2) A, on input h ,h , speciﬁes a single query a to the
+                                  1   2
+              Diﬃe-Hellman oracle, which on input a returns b ← at; (3)       rized by a warrant while keeping the searched information
+              A can make any number of queries to a Decisional Diﬃe-          hidden from all parties except the authorized searcher.
+              Hellman oracle DDH (·,·), which on input (h,v) returns 1 if       In addition, OSPIR-OXT can be extended (even without
+                                  t
+                    t                                                         introducing a policy manager) so that the leakage about
+              v = h and 0 otherwise; (4) Finally A outputs two values
+              v ,v , and we say that A wins the game if v = (h )t and         queried attributes to D is further limited to the minimum
+               1  2                                       1      1
+              v =(h )t.                                                       needed to make policy decisions (e.g., D may not need to
+               2     2                                                        know the exact attributes in a query but only the attribute
+              Security against adversarial server E. The OSPIR-               classes they belong to).
+              SSEscheme OSPIR-OXT is Loxt-semantically-secure against
+              adaptive server E under the same assumptions and for the
+              same leakage function Loxt as the underlying SSE scheme         Acknowledgment
+              OXT of [9].  This is because the speciﬁc PRF’s used by          Supported by the Intelligence Advanced Research Projects
+              OSPIR-OXT in EDB construction are instantiations of gen-        Activity (IARPA)via Departmentof Interior National Busi-
+              eral PRF’s considered in OXT, and because E’s view of the       ness Center (DoI / NBC) contract number D11PC20201.
+              Search protocol in the OSPIR-OXT scheme can be generated        The U.S. Government is authorized to reproduce and dis-
+              fromE’sviewofSearchintheOXTscheme. Speciﬁcally,each             tribute reprints for Governmental purposes notwithstanding
+              ρ in env is random in Z∗, and bstag and each bxtoken[c,i]       any copyright annotation thereon. Disclaimer: The views
+               i                      p
+              value in Figure 3 can be computed by exponentiating values      and conclusions contained herein are those of the authors
+              stag and xtoken[c,i] in Figure 1 to, respectively, ρ1 and ρi.   andshouldnotbeinterpretedas necessarily representing the
+              SecurityagainstadversarialclientC. LetMask(|DB(w1)|)            oﬃcial policies or endorsements, either expressed or implied,
+              denote an upper bound on |DB(w )| used by E to mask the         of IARPA, DoI/NBC, or the U.S. Government.
+                                               1
+              size of TSet(w1) when responding to C’s queries as described
+              at the end of Section 3.
+                                                                              6.   REFERENCES
+                Theorem 4. Let L be a deﬁned as L(DB,w¯) = Mask                [1] M. Abdalla, M. Bellare, D. Catalano, E. Kiltz,
+              (|DB(w )|) for w¯ = (w ,...,w ). OSPIR-SSE scheme OSPIR-OXT         T. Kohno, T. Lange, J. Malone-Lee, G. Neven,
+                     1             1      n                                       P. Paillier, and H. Shi. Searchable encryption
+              instantiated with the Hashed Diﬃe-Hellman OPRF is L-                revisited: Consistency properties, relation to
+              semantically-secure against malicious clients assuming that         anonymous IBE, and extensions. In V. Shoup, editor,
+              the One-More Gap Diﬃe-Hellman assumption holds in G,                CRYPTO2005, volume 3621 of LNCS, pages 205–222.
+              that Fp is a secure PRF, that the T-set implementation              Springer, Aug. 2005.
+              is (computationally) correct, that (AuthEnc,AuthDec) is an       [2] L. Ballard, S. Kamara, and F. Monrose. Achieving
+              IND-CPA and Strongly-UF-CMA authenticated encryption                eﬃcient conjunctive keyword searches over encrypted
+              scheme, and assuming the Random Oracle Model for hash               data. In S. Qing, W. Mao, J. L´opez, and G. Wang,
+              function H.                                                         editors, ICICS 05, volume 3783 of LNCS, pages
+                Proof. See full version [20].                                     414–426. Springer, Dec. 2005.
+              Security against adversarial data owner D. In our                [3] M. Bellare, A. Boldyreva, and A. O’Neill.
+              OSPIR-SSEschemeamaliciousDlearnsnothingaboutclients’                Deterministic and eﬃciently searchable encryption. In
+              query w¯ = (w ,...,w ) except for the vector of attributes          A. Menezes, editor, CRYPTO 2007, volume 4622 of
+                           1       n                                              LNCS, pages 535–552. Springer, Aug. 2007.
+              av(w¯) = (I(w ),...,I(w )).
+                           1         n                                         [4] D. J. Bernstein. Faster square roots in annoying ﬁnite
+                Theorem 5. LetLbealeakagefunctiondeﬁned asL(w¯) =                 ﬁelds. http://cr.yp.to/papers/sqroot.pdf, 2001.
+                                                                               5] D. Boneh, G. Di Crescenzo, R. Ostrovsky, and
+              av(w¯). OSPIR-SSE scheme OSPIR-OXT instantiated with             [
+              the Hashed Diﬃe-Hellman OPRF is L-semantically-secure               G. Persiano. Public key encryption with keyword
+              against malicious data owner.                                       search. In C. Cachin and J. Camenisch, editors,
+                Proof. See full version [20].                                     EUROCRYPT2004, volume 3027 of LNCS, pages
+                                                                                  506–522. Springer, May 2004.
+                Note that the D’s view of the GenToken protocol in the         [6] D. Boneh and B. Waters. Conjunctive, subset, and
+              OSPIR-OXT scheme consists of the attribute vector av(w¯)            range queries on encrypted data. In S. P. Vadhan,
+                                                                         885
+                 editor, TCC 2007, volume 4392 of LNCS, pages            [20] S. Jarecki, C. Jutla, H. Krawczyk, M. C. Rosu, and
+                 535–554. Springer, Feb. 2007.                                M. Steiner. Outsourced symmetric private information
+              [7] J. W. Byun, D. H. Lee, and J. Lim. Eﬃcient                  retrieval. http://eprint.iacr.org/2013/.
+                 conjunctive keyword search on encrypted data storage    [21] S. Jarecki and X. Liu. Eﬃcient oblivious
+                 system. In EuroPKI, pages 184–196, 2006.                     pseudorandom function with applications to adaptive
+              [8] D. Cash, J. Jaeger, S. Jarecki, C. Jutla, H. Krawczyk,      OTandsecure computation of set intersection. In
+                 M.-C. Ro¸su, and M. Steiner. Dynamic Searchable              O. Reingold, editor, TCC 2009, volume 5444 of LNCS,
+                 Encryption in Very Large Databases: Data Structures          pages 577–594. Springer, Mar. 2009.
+                 and Implementation. Manuscript, 2013.                   [22] S. Jarecki and X. Liu. Fast secure computation of set
+              [9] D. Cash, S. Jarecki, C. Jutla, H. Krawczyk, M. Rosu,        intersection. In SCN 10, LNCS, pages 418–435.
+                 and M. Steiner. Highly-scalable searchable symmetric         Springer, 2010.
+                 encryption with support for boolean queries.            [23] S. Kamara and K. Lauter. Cryptographic cloud
+                 Crypto’2013. Cryptology ePrint Archive, Report               storage. In Financial Cryptography Workshops, pages
+                 2013/169, Mar. 2013.                                         136–149, 2010.
+                 http://eprint.iacr.org/2013/169.                        [24] S. Kamara, C. Papamanthou, and T. Roeder.
+             [10] Y.-C. Chang and M. Mitzenmacher. Privacy                    Dynamic searchable symmetric encryption. In Proc. of
+                 preserving keyword searches on remote encrypted              CCS’2012, 2012.
+                 data. In J. Ioannidis, A. Keromytis, and M. Yung,       [25] K. Kurosawa and Y. Ohtaki. UC-secure searchable
+                 editors, ACNS 05, volume 3531 of LNCS, pages                 symmetric encryption. In Financial Cryptography,
+                 442–455. Springer, June 2005.                                page 285, 2012.
+             [11] M. Chase and S. Kamara. Structured encryption and      [26] M. Naor and O. Reingold. Number-theoretic
+                 controlled disclosure. In ASIACRYPT 2010, LNCS,              constructions of eﬃcient pseudo-random functions. In
+                 pages 577–594. Springer, Dec. 2010.                          38th FOCS, pages 458–467. IEEE Computer Society
+             [12] E. D. Cristofaro, Y. Lu, and G. Tsudik. Eﬃcient             Press, Oct. 1997.
+                 techniques for privacy-preserving sharing of sensitive  [27] V. Pappas, B. Vo, F. Krell, S. G. Choi, V. Kolesnikov,
+                 information. In J. M. McCune, B. Balacheﬀ, A. Perrig,        A. Keromytis, and T. Malkin. Blind Seer: A Scalable
+                 A.-R. Sadeghi, A. Sasse, and Y. Beres, editors,              Private DBMS. Manuscript, 2013.
+                 TRUST, volume 6740 of Lecture Notes in Computer         [28] E. Shi, J. Bethencourt, H. T.-H. Chan, D. X. Song,
+                 Science, pages 239–253. Springer, 2011.                      and A. Perrig. Multi-dimensional range query over
+             [13] R. Curtmola, J. A. Garay, S. Kamara, and                    encrypted data. In 2007 IEEE Symposium on Security
+                 R. Ostrovsky. Searchable symmetric encryption:               and Privacy, pages 350–364. IEEE Computer Society
+                 improved deﬁnitions and eﬃcient constructions. In            Press, May 2007.
+                 A. Juels, R. N. Wright, and S. Vimercati, editors,      [29] D. X. Song, D. Wagner, and A. Perrig. Practical
+                 ACMCCS06,pages 79–88. ACM Press, Oct. / Nov.                 techniques for searches on encrypted data. In 2000
+                 2006.                                                        IEEE Symposium on Security and Privacy, pages
+             [14] M. J. Freedman, Y. Ishai, B. Pinkas, and O. Reingold.       44–55. IEEE Computer Society Press, May 2000.
+                 Keyword search and oblivious pseudorandom               [30] P. van Liesdonk, S. Sedhi, J. Doumen, P. H. Hartel,
+                 functions. In J. Kilian, editor, TCC 2005, volume 3378       and W. Jonker. Computationally eﬃcient searchable
+                 of LNCS, pages 303–324. Springer, Feb. 2005.                 symmetric encryption. In Proc. Workshop on Secure
+             [15] E.-J. Goh. Secure indexes. Cryptology ePrint Archive,       Data Management (SDM), pages 87–100, 2010.
+                 Report 2003/216, 2003. http://eprint.iacr.org/.         [31] B. R. Waters, D. Balfanz, G. Durfee, and D. K.
+             16] P. Golle, J. Staddon, and B. R. Waters. Secure
+             [                                                                Smetters. Building an encrypted and searchable audit
+                 conjunctive keyword search over encrypted data. In           log. In NDSS 2004. The Internet Society, Feb. 2004.
+                 M. Jakobsson, M. Yung, and J. Zhou, editors, ACNS       [32] WSJ. U.S. Terrorism Agency to Tap a Vast Database
+                 04, volume 3089 of LNCS, pages 31–45. Springer, June         of Citizens. Wall Street Journal 12/13/12.
+                 2004.                                                        http://alturl.com/ot72x.
+             [17] Y. Huang and I. Goldberg. Outsourced private
+                 information retrieval with pricing and access control.
+                 Technical Report 2013-11, Centre for Applied
+                 Cryptographic Research (CACR), University of
+                 Waterloo, Feb. 2013.
+             [18] IARPA. Security and Privacy Assurance Research
+                 (SPAR) Program - BAA, 2011.
+                 http://www.iarpa.gov/solicitations_spar.html/.
+             [19] M. Islam, M. Kuzu, and M. Kantarcioglu. Access
+                 pattern disclosure on searchable encryption:
+                 Ramiﬁcation, attack and mitigation. In Proceedings of
+                 the Symposium on Network and Distributed Systems
+                 Security (NDSS 2012), San Diego, CA, Feb. 2012.
+                 Internet Society.
+                                                                     886
+                Group operations. G is a cyclic group of prime order p generated by an element g. H is a hash function with range in G\{1}.
+                EDBSetup(DB,RDK)
+                Key Generation. D picks key K and two vectors of elements K            =(k1,...,km) and K       =(e1,...,em) at random in Z∗
+                                                   S                                T                        X                                 p
+                (m=number of attributes); key KI for PRF Fp; and key KM for a symmetric authenticated encryption AuthEnc. Fp and Fτ are
+                                                              ∗          τ
+                PRF’s which outputs strings in respectively Zp and {0,1} , and τ is a security parameter.
+                   • Initialize XSet to an empty set, and initialize T to an empty array indexed by group elements in G.
+                   • For each w = (i,val) ∈ W, build the tuple list t and add elements to set XSet as follows:
+                         – Initialize t to an empty list.
+                                              K                    k       m
+                         – Set strap ← (H(w)) S, stag ← (H(w)) i [= FG (KT,w)], (Kz,Ke) ← (Fτ(strap,1),Fτ(strap,2)).
+                         – Initialize c ← 0; then for all ind in DB(w) in random order:
+                             ∗ Set rdk ← RDK(ind), e ← Enc(Ke,(ind|rdk)), xind ← Fp(KI,ind).
+                             ∗ Set c ← c+1, z ← F (K ,c), y ← xind·z−1. Append (e,y) to t.
+                                               c     p   z                c
+                                                 e ·xind     m          xind
+                             ∗ Set xtag ← H(w) i       [ = (FG (KX,w))     ] and add xtag to XSet.
+                         – T[stag] ← t.
+                   • Create TSet ← TSetSetup0(T), and output key K = (K ,K ,K ,K ,K ) and EDB = (TSet,XSet,K ).
+                                                                             S   X T I M                                    M
+                GenToken protocol
+                Client C on input a conjunctive query w¯ = (w1,...,wn), where w1 is chosen as s-term, proceeds as follows:
+                                     $   ∗                      rj
+                   • Pick r1,...,rn ← Z and set a ← (H(w ))        for j = 1,...,n.
+                                        p           j         j
+                   • Send to D the blinded queries a ,...,a    and the attribute sequence av = (I(w ),...,I(w )).
+                                                     1       n                                      1          n
+                Data owner D on input policy P and key K proceeds as follows:
+                                                                                           $   ∗
+                   • Abort if av 6∈ P. Otherwise set av as a local output. Pick ρ ,...,ρ  ←Z .
+                                                                                 1      n     p
+                                                       k ·ρ                                        e ·ρ
+                              0        s      0         i  1         K [i ]·ρ             0         i  j         K [i ]·ρ
+                   • Set strap ← (a ) , bstag ← (a ) 1       [ = (a ) T 1   1 ], and bxtrap ← (a ) j     [ = (a ) X j   j ] for j = 2,...,n.
+                                     1               1             1                      j      j             j
+                   • Reply to C with (strap0,bstag0,bxtrap0 ,...,bxtrap0 ) and env = AuthEnc    (ρ ,...,ρ ).
+                                                           2           n                     K    1       n
+                                                                                              M
+                C sets:
+                                      −1                   −1                      r−1
+                                    0 r1                 0 r1                    0  j
+                   • strap ← (strap )    ; bstag ← (bstag )   ; bxtrap ← (bxtrap )    (∀        );
+                                                                     j           j       j=2,...,n
+                   • token ← (env,strap,bstag,bxtrap2,...,bxtrapn).
+                Search protocol
+                Client C on input token proceeds as follows:
+                   • Set(K ,K ) ← F( (strap,1),F(strap,2)), and sendtoE themessage (env,bstag,bxtoken[1],bxtoken[2],...) deﬁned asfollows:
+                            z   e       τ
+                         – For c = 1,2,..., until E sends stop:
+                                                                                   zc
+                             ∗ Set zc ← Fp(Kz,c) and set bxtoken[c,i] ← (bxtrapi)     for i = 2,...,n.
+                             ∗ Set bxtoken[c] ← (bxtoken[c,2],...,bxtoken[c,n]).
+                Server E on input EDB = (TSet,XSet,KM) responds as follows:
+                   • Upon receiving env,bstag from C, decrypt/verify env; if veriﬁcation fails return“no results”and stop.
+                                        1/ρ1
+                   • Set stag ← (bstag)      and retrieve t ← TSetRetrieve(TSet,stag) from TSet.
+                   • For c = 1,...,|t| do:
+                         – Receive bxtoken[c] from C and retrieve value (e,y) from the c-th tuple in t.
+                         – Check if bxtoken[c,i]y/ρi ∈ XSet for all i = 2,...,n. If so, send e to C (else nothing is returned for this tuple).
+                         – When last tuple in t is reached, send stop to C and halt.
+                For each received e client C computes (ind|rdk) ← Dec(Ke,e) and outputs (ind,rdk).
+                          Figure 3: OSPIR-OXT Instantiated for Conjuntions with the Hashed Diffie-Hellman OPRF
+                                                                                 887
