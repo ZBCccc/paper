@@ -6,7 +6,12 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git -C HUST-PhD-Thesis-Latex diff body/chapter/intro.tex)"
+      "Bash(git -C HUST-PhD-Thesis-Latex diff body/chapter/intro.tex)",
+      "Bash(rm:*)",
+      "Bash(git rm:*)",
+      "Bash(cd:*)",
+      "Bash(xelatex:*)",
+      "Bash(bibtex main:*)"
     ]
   }
 }

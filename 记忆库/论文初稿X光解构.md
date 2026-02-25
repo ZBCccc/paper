@@ -7,17 +7,27 @@
 
 ## 2. 解题机制
 
-- **核心直觉**：把“搜索流程里最容易被作恶的两步”拆开验证。
+- **核心直觉**：把”搜索流程里最容易被作恶的两步”拆开验证——位值真实性与地址正确性。
 - **关键步骤**：
-  1. 用 MHT 替换资格检验中的概率结构，输出认证路径。
-  2. 在更新阶段将承诺嵌入已有索引，约束结果返回阶段伪造行为。
+  1. 用 MHT 覆盖 XSet 位数组（QTree），为每个位地址提供认证路径，保证位值真实性。
+  2. 在 TSet 加密 Payload 中嵌入地址承诺，解决 OPRF 盲化下的位置盲化问题，保证地址正确性。
 
 ## 3. 创新增量
 
-- **对比现有方案**：
-  - 资格检验：概率过滤 -> 可证明验证
-  - 结果验证：独立验证索引 -> 嵌入式验证信息
-- **新增拼图**：给多用户多关键词 SSE 增加“可追责的检索可信层”。
+- **创新点一（第二章）：MHT 可验证资格检验**
+  - 在 XSet 上构建 QTree，Server 的每次资格判定必须附带 Merkle 认证路径
+  - 解决”判定伪造”——Server 不能凭空声称某地址的位值
+  - 提供双向证据（Positive 全证据 + Negative 反例证据）
+
+- **创新点二（第三章）：嵌入式承诺地址绑定**
+  - 问题：由于 OPRF 盲化，Client 不知道 (w, id) 对应 XSet 的哪些物理地址（位置盲化）
+  - 攻击：Server 可用”张冠李戴”的地址提供合法 Merkle Proof 欺骗 Client
+  - 解决：GK 在 Update 阶段将地址集合的承诺 Cm 嵌入 TSet Payload，验证时 Server 提供开封，Client 核对地址归属
+  - 两者组合：位值真实性 + 地址正确性 = 完整的可验证资格检验
+  - 安全性：定义 5（地址绑定健全性）→ 命题 5（归约到 CRHF + IND-CPA）→ 命题 6（组合可验证性）
+  - **正文状态**：初稿完成（commitment.tex，221 行，6 节，3 个算法块）
+
+- **新增拼图**：给多用户多关键词 SSE 增加”可追责的检索可信层”。
 
 ## 4. 批判性边界
 
@@ -44,19 +54,16 @@ Query Q
   v
 Candidate via TSet
   |
-  +--> Eligibility Check
-  |      |-- old: probabilistic filter
-  |      |-- new: MHT proof path
+  +--> Eligibility Check (XSet)
+  |      |-- 位值真实性: QTree Merkle Proof (Ch.2)
+  |      |-- 地址正确性: 嵌入式承诺开封验证 (Ch.3)
+  |      |-- 组合: 正确地址 + 真实位值 = 可验证判定
   |
-  v
-Result Assembly
-  |-- old: unverifiable return
-  |-- new: embedded commitment check
   v
 User Verify -> Accept / Reject
 ```
 
 ---
 
-**最后更新**：2026-02-13
+**最后更新**：2026-02-25
 **标签**：X光解构，研究主线，创新点
