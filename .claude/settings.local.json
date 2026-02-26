@@ -11,7 +11,16 @@
       "Bash(git rm:*)",
       "Bash(cd:*)",
       "Bash(xelatex:*)",
-      "Bash(bibtex main:*)"
+      "Bash(bibtex main:*)",
+      "WebFetch(domain:eprint.iacr.org)",
+      "WebFetch(domain:scholar.google.com)",
+      "WebFetch(domain:dblp.org)",
+      "WebFetch(domain:api.semanticscholar.org)",
+      "Bash(sed:*)",
+      "Bash(tail:*)",
+      "Bash(latexmk:*)",
+      "Bash(claude mcp:*)",
+      "Bash(python3 -m json.tool)"
     ]
   }
 }
