@@ -20,7 +20,15 @@
       "Bash(tail:*)",
       "Bash(latexmk:*)",
       "Bash(claude mcp:*)",
-      "Bash(python3 -m json.tool)"
+      "Bash(python3 -m json.tool)",
+      "mcp__filesystem__directory_tree",
+      "mcp__fetch__fetch",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__filesystem__edit_file",
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__read_multiple_files",
+      "Bash(test:*)",
+      "Bash(ls:*)"
     ]
   }
 }

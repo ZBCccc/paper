@@ -1,0 +1,882 @@
+
+ ▐▛███▜▌   Claude Code v2.1.53
+▝▜█████▛▘  Opus 4.6 (1M context) · API Usage Billing
+  ▘▘ ▝▝    ~/Code/Personal/paper
+
+  Welcome to Opus 4.6
+
+✻ Conversation compacted (ctrl+o for history)
+
+
+❯ /compact 
+  ⎿  Compacted (ctrl+o to see full summary)
+  ⎿  Read HUST-PhD-Thesis-Latex/body/chapter/commitment.tex (15 lines)
+  ⎿  Read 控制面板.md (77 lines)
+  ⎿  Read 01-论文生产/素材库/基础库/RBF-MHT双向证据可验证资格检验方案.md (177 
+     lines)
+  ⎿  Read 01-论文生产/方法论/论文研究流程.md (155 lines)
+  ⎿  Read 记忆库/论文初稿X光解构.md (68 lines)
+
+❯ 根据我们的思路，重写 commitment.tex 
+
+⏺ Let me先读取关键参考文件，确保符号一致性。
+
+⏺ Read 3 files (ctrl+o to expand)
+  ⎿  Loaded HUST-PhD-Thesis-Latex/CLAUDE.md
+
+✻ Cooked for 3m 27s
+
+❯ 开始动笔 
+
+⏺ 好，开始重写 commitment.tex。先写 §1 和 §2 的开头部分。
+
+⏺ Write(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 7 lines, removed 3 lines
+       5  
+       6  \section{基线能力边界与位置盲化问题}\label{sec:commit-gap}
+       7  
+       8 -第\ref{chap:bf}章在 $\mathsf{XSet}$ 上构建认证型索引树 $\mathsf
+         -{QTree}$，使服务器对每个候选-关键词对 $(j,\mathsf{id})$ 的资格 
+         -判定必须附带 Merkle 认证路径。该机制保证的安全边界为：服务器声 
+         -称的位值 $\widehat{v}_{j,\mathsf{id}}$ 与 $\mathsf{QTree}$ 根承
+         -诺 $R_X^{(t)}$ 下的真实位值一致。换言之，$\mathsf{QTree}$ 提供 
+         -了位值真实性（bit value authenticity）保证。                   
+       8 +第\ref{chap:bf}章在 $\mathsf{XSet}$ 上构建认证型索引树 $\mathsf
+         +{QTree}$，使服务器对每个候选-关键词对 $(j,\mathsf{id})$ 的资格 
+         +判定必须附带 Merkle 认证路径。该机制保证的安全边界为：服务器声 
+         +称的位值 $\widehat{v}_{j,\mathsf{id}}$ 与 $\mathsf{QTree}$ 根承
+         +诺 $R_X^{(t)}$ 下的真实位值一致，即位值真实性（bit value authen
+         +ticity）。                                                     
+       9  
+      10 -该保证的成立依赖一个隐含前提：客户端知道哪些地址应当被验证。第\
+         -ref{chap:bf}章将该前提表述为"客户端可据公开派生规则重建全部地址
+         -集合 $\mathcal{A}_{j,\mathsf{id}}^{(t,\nu)}$"。然而，在 Nomos  
+         -的 OPRF 盲化架构下，该前提并不自然成立。                       
+      10 +该保证的成立依赖一个隐含前提：客户端知道哪些地址应当被验证。第\
+         +ref{chap:bf}章的绑定健全性（命题~2）在``地址归属正确''的前提下 
+         +成立——即证明所用地址确实属于令牌绑定的地址集合 $\mathcal{A}_{j,
+         +\mathsf{id}}^{(t,\nu)}$。然而，在 Nomos 的 OPRF 盲化架构下，该 
+         +前提并不自然成立。                                             
+      11  
+      12  Nomos 的隐私设计要求客户端不持有交叉标签密钥 $K_X$，无法自行计
+          算关键词-文件对 $(w_j,\mathsf{id})$ 对应的 $\mathsf{XSet}$ 物理
+          地址。这些地址由服务器在搜索阶段通过令牌参数 $\alpha$ 与 $\math
+          sf{xtoken}$ 恢复为 $\mathsf{xtag}$，再映射到 $\mathsf{XSet}$ 的
+          具体位置。客户端仅持有盲化后的令牌 $\{\overline{\mathsf{bxtrap}
+          }_i\}$，不获知最终的物理地址——这是 Nomos 保护查询访问模式的核心
+          机制\cite{bag2024nomos}。
+      13  
+      14 -该隐私特性在引入 $\mathsf{QTree}$ 后产生了一个安全缺口：服务器 
+         -可利用客户端对物理地址的不可知性实施地址替换攻击。具体地，设候 
+         -选 $\mathsf{id}$ 在交叉关键词 $w_j$ 下的真实地址集合为 $\mathca
+         -l{A}_{j,\mathsf{id}}^{(t,\nu)}$，且该集合中所有位值均为 $1$（即
+         - $\mathsf{id}$ 应通过资格检验）。恶意服务器 $\mathcal{S}^*$ 可 
+         -执行以下策略：                                                 
+      14 +该隐私特性在引入 $\mathsf{QTree}$ 后产生了一个安全缺口。设候选 
+         +$\mathsf{id}$ 在交叉关键词 $w_j$ 下的真实地址集合为 $\mathcal{A
+         +}_{j,\mathsf{id}}^{(t,\nu)}=\{\mathsf{xtag}_{j,\mathsf{id},\bet
+         +a_1},\ldots,\mathsf{xtag}_{j,\mathsf{id},\beta_k}\}$，且该集合 
+         +中所有位值均为 $1$（即 $\mathsf{id}$ 应通过资格检验）。恶意服务
+         +器 $\mathcal{S}^*$ 可实施如下地址替换攻击：选取不属于 $\mathcal
+         +{A}_{j,\mathsf{id}}^{(t,\nu)}$ 但位值为 $0$ 的地址 $a^*$，为 $a
+         +^*$ 生成合法的 $\mathsf{QTree}$ 认证路径 $\pi_{a^*}$，并将 $(a^
+         +*,0,\pi_{a^*})$ 作为 Negative 证据返回。由于 $a^*$ 确实存在于 $
+         +\mathsf{QTree}$ 中且位值确实为 $0$，认证路径验证将通过；而客户 
+         +端不持有 $K_X$，无法判断 $a^*$ 是否属于 $\mathcal{A}_{j,\mathsf
+         +{id}}^{(t,\nu)}$，因此会错误地接受``$\mathsf{id}$ 不通过资格检 
+         +验''的判定。                                                   
+      15 +                                                               
+      16 +该攻击的本质在于：$\mathsf{QTree}$ 保证了位值的真实性，但不保证
+         +被证明的地址属于正确的候选-关键词对。$\mathcal{S}^*$ 以合法证据
+         +证明了一个无关地址的位值，实现了``张冠李戴''式的判定操控。对称 
+         +地，$\mathcal{S}^*$ 亦可对本不应通过的候选选取位值为 $1$ 的无关
+         +地址构造 Positive 伪证。两类攻击均不违反 $\mathsf{QTree}$ 的绑 
+         +定健全性——认证路径本身合法，问题在于路径所证明的地址与候选-关键
+         +词对之间缺乏绑定关系。                                         
+      17 +                                                               
+      18 +本章的目标即为填补该缺口：在不破坏 Nomos 隐私设计的前提下，建立
+         +从 $\mathsf{TSet}$ 记录到 $\mathsf{XSet}$ 地址集合的密码学绑定 
+         +，使客户端能够验证服务器在资格检验中使用的地址确实属于对应的候 
+         +选-关键词对。与第\ref{chap:bf}章的位值真实性保证组合后，可得到 
+         +完整的可验证资格检验：服务器在\emph{正确的地址}上给出\emph{真实
+         +的位值}。                                                      
+
+⏺ §1 完成。继续写 §2 安全目标。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 18 lines
+      16  该攻击的本质在于：$\mathsf{QTree}$ 保证了位值的真实性，但不保证
+          被证明的地址属于正确的候选-关键词对。$\mathcal{S}^*$ 以合法证据
+          证明了一个无关地址的位值，实现了``张冠李戴''式的判定操控。对称
+          地，$\mathcal{S}^*$ 亦可对本不应通过的候选选取位值为 $1$ 的无关
+          地址构造 Positive 伪证。两类攻击均不违反 $\mathsf{QTree}$ 的绑
+          定健全性——认证路径本身合法，问题在于路径所证明的地址与候选-关键
+          词对之间缺乏绑定关系。
+      17  
+      18  本章的目标即为填补该缺口：在不破坏 Nomos 隐私设计的前提下，建立
+          从 $\mathsf{TSet}$ 记录到 $\mathsf{XSet}$ 地址集合的密码学绑定
+          ，使客户端能够验证服务器在资格检验中使用的地址确实属于对应的候
+          选-关键词对。与第\ref{chap:bf}章的位值真实性保证组合后，可得到
+          完整的可验证资格检验：服务器在\emph{正确的地址}上给出\emph{真实
+          的位值}。
+      19 +                                                               
+      20 +\section{地址绑定安全目标}\label{sec:commit-goal}              
+      21 +                                                               
+      22 +第\ref{chap:bf}章定义的绑定健全性（定义~2）要求服务器的声明判定
+         +位 $\widehat{v}_{j,\mathsf{id}}$ 与承诺状态下的真实判定位 $v_{j
+         +,\mathsf{id}}^{(t,\nu)}$ 一致。该性质的证明（命题~2）依赖一个前
+         +提条件：证明所用地址属于令牌绑定的地址集合 $\mathcal{A}_{j,\mat
+         +hsf{id}}^{(t,\nu)}$。上一节的分析表明，在 OPRF 盲化架构下，客户
+         +端无法独立验证该前提。本节将该前提提升为独立的安全性质，并给出 
+         +形式化定义。                                                   
+      23 +                                                               
+      24 +回顾 Nomos 的更新流程（算法\ref{alg:sse-update}）：对每条更新 $
+         +(w,\mathsf{id},\mathsf{op})$，$\mathcal{G}$ 计算 $\ell$ 个交叉 
+         +标签                                                           
+      25 +\[                                                             
+      26 +\mathsf{xtag}_i=H(w)^{K_X[I(w)]\cdot F_p(K_Y,\mathsf{id}\|\math
+         +sf{op})\cdot i},\quad i\in[\ell],                              
+      27 +\]                                                             
+      28 +并写入 $\mathsf{XSet}$。定义该记录的\emph{完整交叉标签集合}为  
+      29 +\begin{equation}\label{eq:full-xtag-set}                       
+      30 +\mathcal{F}_{w,\mathsf{id}}=\{\mathsf{xtag}_1,\ldots,\mathsf{xt
+         +ag}_\ell\}.                                                    
+      31 +\end{equation}                                                 
+      32 +查询阶段，$\mathcal{G}$ 随机采样 $\beta_1,\ldots,\beta_k\in[\el
+         +l]$，客户端据此生成令牌，服务器恢复对应的 $k$ 个交叉标签并执行 
+         +成员测试。令牌绑定的地址集合为                                 
+      33 +\begin{equation}\label{eq:sampled-addr-set}                    
+      34 +\mathcal{A}_{j,\mathsf{id}}^{(t,\nu)}=\{\mathsf{xtag}_{\beta_1}
+         +,\ldots,\mathsf{xtag}_{\beta_k}\}\subseteq \mathcal{F}_{w_j,\ma
+         +thsf{id}}.                                                     
+      35 +\end{equation}                                                 
+      36 +地址替换攻击的核心在于：$\mathcal{S}^*$ 在 $\mathsf{QTree}$ 证 
+         +明中使用了不属于 $\mathcal{F}_{w_j,\mathsf{id}}$ 的地址。为阻止
+         +该攻击，需要一种机制使客户端能够验证服务器提供的地址确实属于 $\
+         +mathcal{G}$ 在更新阶段确定的 $\mathcal{F}_{w_j,\mathsf{id}}$。 
+
+⏺ 继续写 §2 的形式化定义部分。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 8 lines
+      34  \mathcal{A}_{j,\mathsf{id}}^{(t,\nu)}=\{\mathsf{xtag}_{\beta_1}
+          ,\ldots,\mathsf{xtag}_{\beta_k}\}\subseteq \mathcal{F}_{w_j,\ma
+          thsf{id}}.
+      35  \end{equation}
+      36  地址替换攻击的核心在于：$\mathcal{S}^*$ 在 $\mathsf{QTree}$ 证
+          明中使用了不属于 $\mathcal{F}_{w_j,\mathsf{id}}$ 的地址。为阻止
+          该攻击，需要一种机制使客户端能够验证服务器提供的地址确实属于 $\
+          mathcal{G}$ 在更新阶段确定的 $\mathcal{F}_{w_j,\mathsf{id}}$。
+      37 +                                                               
+      38 +\textbf{定义~5（地址绑定健全性）}。对任意 PPT 对手 $\mathcal{A}
+         +$（建模恶意服务器），其使客户端在验证通过的同时接受一个``证明地
+         +址不属于承诺地址集合''的响应的概率可忽略：                     
+      39 +\begin{equation}\label{eq:addr-binding}                        
+      40 +\Pr\!\left[\mathsf{Verify}=1\ \land\ \exists\, a\in\mathsf{Proo
+         +fAddr}:\, a\notin \mathcal{F}_{w_j,\mathsf{id}}\right]\le \math
+         +sf{negl}(\lambda),                                             
+      41 +\end{equation}                                                 
+      42 +其中 $\mathsf{ProofAddr}$ 为服务器在证明中实际使用的地址集合。 
+      43 +                                                               
+      44 +该定义与第\ref{chap:bf}章的绑定健全性（定义~2）构成互补关系。定
+         +义~2 保证：在地址正确的前提下，位值不可伪造。定义~5 保证：地址 
+         +本身不可替换。两者组合后，对任意候选-关键词对 $(j,\mathsf{id})$
+         +，服务器必须在 $\mathcal{G}$ 确定的正确地址 $\mathcal{F}_{w_j,\
+         +mathsf{id}}$ 上给出与 $\mathsf{QTree}$ 根承诺一致的真实位值，从
+         +而排除判定伪造与地址替换两类攻击。                             
+
+⏺ 继续写 §3 嵌入式承诺机制设计。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 10 lines
+      42  其中 $\mathsf{ProofAddr}$ 为服务器在证明中实际使用的地址集合。
+      43  
+      44  该定义与第\ref{chap:bf}章的绑定健全性（定义~2）构成互补关系。定
+          义~2 保证：在地址正确的前提下，位值不可伪造。定义~5 保证：地址
+          本身不可替换。两者组合后，对任意候选-关键词对 $(j,\mathsf{id})$
+          ，服务器必须在 $\mathcal{G}$ 确定的正确地址 $\mathcal{F}_{w_j,\
+          mathsf{id}}$ 上给出与 $\mathsf{QTree}$ 根承诺一致的真实位值，从
+          而排除判定伪造与地址替换两类攻击。
+      45 +                                                               
+      46 +\section{嵌入式承诺机制设计}\label{sec:commit-design}          
+      47 +                                                               
+      48 +\subsection{设计约束与时机选择}                                
+      49 +                                                               
+      50 +实现定义~5 的关键在于：$\mathcal{G}$ 需要在某个阶段将 $\mathcal
+         +{F}_{w,\mathsf{id}}$ 的承诺传递给客户端，使客户端在验证阶段能够
+         +核对服务器使用的地址。该承诺的生成时机受 Nomos 协议结构的约束。
+      51 +                                                               
+      52 +在 Nomos 的更新阶段（算法\ref{alg:sse-update}），$\mathcal{G}$ 
+         +计算全部 $\ell$ 个交叉标签 $\{\mathsf{xtag}_i\}_{i\in[\ell]}$  
+         +并写入 $\mathsf{XSet}$，同时将加密载荷 $\mathsf{val}$ 写入 $\ma
+         +thsf{TSet}$。此时 $\mathcal{G}$ 持有全部密钥，能够确定 $\mathca
+         +l{F}_{w,\mathsf{id}}$ 的完整内容。在令牌生成阶段（算法\ref{alg:
+         +sse-gentoken}），$\mathcal{G}$ 随机采样 $\beta_1,\ldots,\beta_k
+         +\in[\ell]$，确定查询侧将使用的 $k$ 个地址子集。由于 $\{\beta_i\
+         +}$ 在每次查询中随机选取，更新阶段无法预知未来查询将采样哪 $k$  
+         +个位置。                                                       
+      53 +                                                               
+      54 +该时序约束排除了在更新阶段直接承诺 $k$ 个采样地址的方案。替代策
+         +略为：在更新阶段承诺全部 $\ell$ 个交叉标签，查询阶段由客户端验 
+         +证服务器使用的 $k$ 个地址是否为 $\ell$ 个承诺地址中由 $\{\beta_
+         +i\}$ 索引的子集。该策略的代价是开封时需暴露全部 $\ell$ 个交叉标
+         +签，但这些标签为 PRF 输出，不泄露关键词明文或文件标识的语义关联
+         +，安全性可接受。                                               
+
+⏺ 继续写承诺构造与嵌入方式。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 20 lines
+      52  在 Nomos 的更新阶段（算法\ref{alg:sse-update}），$\mathcal{G}$ 
+          计算全部 $\ell$ 个交叉标签 $\{\mathsf{xtag}_i\}_{i\in[\ell]}$ 
+          并写入 $\mathsf{XSet}$，同时将加密载荷 $\mathsf{val}$ 写入 $\ma
+          thsf{TSet}$。此时 $\mathcal{G}$ 持有全部密钥，能够确定 $\mathca
+          l{F}_{w,\mathsf{id}}$ 的完整内容。在令牌生成阶段（算法\ref{alg:
+          sse-gentoken}），$\mathcal{G}$ 随机采样 $\beta_1,\ldots,\beta_k
+          \in[\ell]$，确定查询侧将使用的 $k$ 个地址子集。由于 $\{\beta_i\
+          }$ 在每次查询中随机选取，更新阶段无法预知未来查询将采样哪 $k$ 
+          个位置。
+      53  
+      54  该时序约束排除了在更新阶段直接承诺 $k$ 个采样地址的方案。替代策
+          略为：在更新阶段承诺全部 $\ell$ 个交叉标签，查询阶段由客户端验
+          证服务器使用的 $k$ 个地址是否为 $\ell$ 个承诺地址中由 $\{\beta_
+          i\}$ 索引的子集。该策略的代价是开封时需暴露全部 $\ell$ 个交叉标
+          签，但这些标签为 PRF 输出，不泄露关键词明文或文件标识的语义关联
+          ，安全性可接受。
+      55 +                                                               
+      56 +\subsection{承诺构造与嵌入}                                    
+      57 +                                                               
+      58 +对每条更新 $(w,\mathsf{id},\mathsf{op})$，$\mathcal{G}$ 在计算 
+         +$\ell$ 个交叉标签后，按确定性顺序（$i=1,\ldots,\ell$）级联并哈 
+         +希，生成地址承诺                                               
+      59 +\begin{equation}\label{eq:commitment}                          
+      60 +\mathsf{Cm}_{w,\mathsf{id}}=H_c(\mathsf{xtag}_1\|\mathsf{xtag}_
+         +2\|\cdots\|\mathsf{xtag}_\ell),                                
+      61 +\end{equation}                                                 
+      62 +其中 $H_c:\{0,1\}^*\to\{0,1\}^\lambda$ 为抗碰撞哈希函数，可与 $
+         +\mathsf{QTree}$ 使用的 $H$ 相同或独立实例化。$\mathsf{xtag}_i$ 
+         +的排列顺序由索引 $i$ 唯一确定，无需额外排序规则。              
+      63 +                                                               
+      64 +$\mathcal{G}$ 将 $\mathsf{Cm}_{w,\mathsf{id}}$ 嵌入 $\mathsf{TS
+         +et}$ 的加密载荷。原 Nomos 更新流程中，$\mathsf{TSet}$ 载荷为   
+      65 +\[                                                             
+      66 +\mathsf{val}=(\mathsf{id}\|\mathsf{op})\oplus \bigl(H(w\|\maths
+         +f{UpdateCnt}[w]\|1)\bigr)^{K_T[I(w)]}.                         
+      67 +\]                                                             
+      68 +扩展后的载荷为                                                 
+      69 +\begin{equation}\label{eq:extended-val}                        
+      70 +\mathsf{val}'=(\mathsf{id}\|\mathsf{op}\|\mathsf{Cm}_{w,\mathsf
+         +{id}})\oplus G\bigl(w,\mathsf{UpdateCnt}[w],K_T[I(w)]\bigr),   
+      71 +\end{equation}                                                 
+      72 +其中 $G$ 为由原 PRF 派生的伪随机生成器，输出长度扩展至 $|\maths
+         +f{id}|+|\mathsf{op}|+\lambda$ 比特以覆盖承诺字段。该扩展不改变 
+         +$\mathsf{TSet}$ 的寻址机制（$\mathsf{addr}$ 不变），仅增加每条 
+         +记录的载荷长度。                                               
+      73 +                                                               
+      74 +嵌入式承诺的核心性质在于：$\mathsf{Cm}_{w,\mathsf{id}}$ 由 $\ma
+         +thcal{G}$ 在更新阶段写入，经 $\mathsf{TSet}$ 加密保护，服务器无
+         +法在不被检测的情况下篡改。客户端在搜索阶段解密 $\mathsf{TSet}$ 
+         +载荷后即可获得 $\mathsf{Cm}_{w,\mathsf{id}}$，作为地址验证的可 
+         +信基准。                                                       
+
+⏺ 继续写验证流程子节。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 16 lines
+      72  其中 $G$ 为由原 PRF 派生的伪随机生成器，输出长度扩展至 $|\maths
+          f{id}|+|\mathsf{op}|+\lambda$ 比特以覆盖承诺字段。该扩展不改变 
+          $\mathsf{TSet}$ 的寻址机制（$\mathsf{addr}$ 不变），仅增加每条
+          记录的载荷长度。
+      73  
+      74  嵌入式承诺的核心性质在于：$\mathsf{Cm}_{w,\mathsf{id}}$ 由 $\ma
+          thcal{G}$ 在更新阶段写入，经 $\mathsf{TSet}$ 加密保护，服务器无
+          法在不被检测的情况下篡改。客户端在搜索阶段解密 $\mathsf{TSet}$ 
+          载荷后即可获得 $\mathsf{Cm}_{w,\mathsf{id}}$，作为地址验证的可
+          信基准。
+      75 +                                                               
+      76 +\subsection{开封与地址归属验证}                                
+      77 +                                                               
+      78 +搜索阶段，服务器对每个候选-关键词对 $(j,\mathsf{id})$ 需提供两 
+         +类信息：$\mathsf{QTree}$ 认证路径（第\ref{chap:bf}章机制）与地 
+         +址开封材料（本章机制）。地址开封材料为该记录对应的全部 $\ell$  
+         +个交叉标签                                                     
+      79 +\[                                                             
+      80 +\mathsf{Open}_{j,\mathsf{id}}=(\mathsf{xtag}_{j,\mathsf{id},1},
+         +\ldots,\mathsf{xtag}_{j,\mathsf{id},\ell}).                    
+      81 +\]                                                             
+      82 +服务器可从令牌参数 $\alpha$ 与 $\mathsf{xtoken}$ 恢复这些标签，
+         +无需额外密钥。                                                 
+      83 +                                                               
+      84 +客户端收到响应后，对每个候选 $(j,\mathsf{id})$ 执行三步地址绑定
+         +验证。第一步为承诺开封验证：客户端解密 $\mathsf{TSet}$ 载荷得到
+         + $\mathsf{Cm}_{w_j,\mathsf{id}}$，计算                         
+      85 +\[                                                             
+      86 +H_c(\mathsf{xtag}_{j,\mathsf{id},1}\|\cdots\|\mathsf{xtag}_{j,\
+         +mathsf{id},\ell})\stackrel{?}{=}\mathsf{Cm}_{w_j,\mathsf{id}}. 
+      87 +\]                                                             
+      88 +若不匹配则拒绝。第二步为子集归属验证：客户端持有采样索引 $\{\be
+         +ta_1,\ldots,\beta_k\}$（由令牌编码），检查服务器在 $\mathsf{QTr
+         +ee}$ 证明中使用的 $k$ 个地址是否恰为 $\{\mathsf{xtag}_{j,\maths
+         +f{id},\beta_1},\ldots,\mathsf{xtag}_{j,\mathsf{id},\beta_k}\}$ 
+         +。第三步为 $\mathsf{QTree}$ 路径验证：按第\ref{chap:bf}章流程验
+         +证每个地址的认证路径与位值。                                   
+      89 +                                                               
+      90 +三步验证的逻辑链为：承诺开封确认服务器提供的 $\ell$ 个地址与 $\
+         +mathcal{G}$ 写入的一致（由 $H_c$ 的抗碰撞性保证），子集归属确认
+         + $\mathsf{QTree}$ 证明使用的 $k$ 个地址确实从 $\ell$ 个承诺地址
+         +中按 $\{\beta_i\}$ 索引选取，路径验证确认这些地址上的位值真实。
+         +三者共同实现了``在正确地址上给出真实位值''的完整可验证性。     
+
+⏺ 继续写 §4 协议构造（含算法块）。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 29 lines
+       88  若不匹配则拒绝。第二步为子集归属验证：客户端持有采样索引 $\{\b
+           eta_1,\ldots,\beta_k\}$（由令牌编码），检查服务器在 $\mathsf{Q
+           Tree}$ 证明中使用的 $k$ 个地址是否恰为 $\{\mathsf{xtag}_{j,\ma
+           thsf{id},\beta_1},\ldots,\mathsf{xtag}_{j,\mathsf{id},\beta_k}
+           \}$。第三步为 $\mathsf{QTree}$ 路径验证：按第\ref{chap:bf}章流
+           程验证每个地址的认证路径与位值。
+       89  
+       90  三步验证的逻辑链为：承诺开封确认服务器提供的 $\ell$ 个地址与 $
+           \mathcal{G}$ 写入的一致（由 $H_c$ 的抗碰撞性保证），子集归属确
+           认 $\mathsf{QTree}$ 证明使用的 $k$ 个地址确实从 $\ell$ 个承诺
+           地址中按 $\{\beta_i\}$ 索引选取，路径验证确认这些地址上的位值
+           真实。三者共同实现了``在正确地址上给出真实位值''的完整可验证性
+           。
+       91 +                                                              
+       92 +\section{协议构造}\label{sec:commit-protocol}                 
+       93 +                                                              
+       94 +本节给出嵌入式承诺机制对 Nomos 协议三个阶段的具体修改：更新阶 
+          +段嵌入承诺，搜索阶段附带开封，验证阶段执行地址绑定校验。修改均
+          +为增量式扩展，不改变 Nomos 的候选枚举与令牌派生逻辑。         
+       95 +                                                              
+       96 +\subsection{扩展更新流程}                                     
+       97 +                                                              
+       98 +算法\ref{alg:commit-update}给出嵌入承诺后的更新流程。与原 Nomo
+          +s 更新（算法\ref{alg:sse-update}）相比，新增步骤为第\ref{line:
+          +cm-compute}--\ref{line:cm-embed}行：$\mathcal{G}$ 在计算全部 $
+          +\ell$ 个交叉标签后，生成地址承诺 $\mathsf{Cm}$ 并将其嵌入 $\ma
+          +thsf{TSet}$ 载荷的加密域。                                    
+       99 +                                                              
+      100 +\begin{algorithm}[t]                                          
+      101 +\caption{扩展更新流程 $\mathsf{Update}'$（承诺嵌入）}         
+      102 +\label{alg:commit-update}                                     
+      103 +\begin{algorithmic}[1]                                        
+      104 +\item[] \textbf{Gate-keeper:}                                 
+      105 +\STATE 解析 $\mathsf{sk}=(K_S,K_T,K_X,K_Y)$ 与 $\mathsf{Update
+          +Cnt}$                                                         
+      106 +\STATE 设置 $K_Z \leftarrow F((H(w))^{K_S},1)$                
+      107 +\STATE 如果 $\mathsf{UpdateCnt}[w]=\mathsf{NULL}$，设置 $\math
+          +sf{UpdateCnt}[w]\leftarrow 0$                                 
+      108 +\STATE 设置 $\mathsf{UpdateCnt}[w]\leftarrow \mathsf{UpdateCnt
+          +}[w]+1$                                                       
+      109 +\STATE 设置 $\mathsf{addr}\leftarrow (H(w\|\mathsf{UpdateCnt}[
+          +w]\|0))^{K_T[I(w)]}$                                          
+      110 +\STATE 设置 $\mathsf{xtag}_i\leftarrow H(w)^{K_X[I(w)]\cdot F_
+          +p(K_Y,\mathsf{id}\|\mathsf{op})\cdot i}$，$i\in[\ell]$        
+      111 +\STATE 计算 $\mathsf{Cm}\leftarrow H_c(\mathsf{xtag}_1\|\maths
+          +f{xtag}_2\|\cdots\|\mathsf{xtag}_\ell)$ \label{line:cm-compute
+          +}                                                             
+      112 +\STATE 设置 $\mathsf{val}'\leftarrow (\mathsf{id}\|\mathsf{op}
+          +\|\mathsf{Cm})\oplus G(w,\mathsf{UpdateCnt}[w],K_T[I(w)])$ \la
+          +bel{line:cm-embed}                                            
+      113 +\STATE 设置 $\alpha\leftarrow F_p(K_Y,\mathsf{id}\|\mathsf{op}
+          +)\cdot (F_p(K_Z,w\|\mathsf{UpdateCnt}[w]))^{-1}$              
+      114 +\STATE 发送 $(\mathsf{addr},\mathsf{val}',\alpha,\{\mathsf{xta
+          +g}_i\}_{i\in[\ell]})$ 至服务器                                
+      115 +\item[] \textbf{Server:}                                      
+      116 +\STATE 设置 $\mathsf{TSet}[\mathsf{addr}]\leftarrow (\mathsf{v
+          +al}',\alpha)$                                                 
+      117 +\STATE 设置 $\mathsf{XSet}[\mathsf{xtag}_i]\leftarrow 1$，$i\i
+          +n[\ell]$                                                      
+      118 +\end{algorithmic}                                             
+      119 +\end{algorithm}                                               
+
+⏺ 继续写搜索证明与验证算法。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 22 lines
+      117  \STATE 设置 $\mathsf{XSet}[\mathsf{xtag}_i]\leftarrow 1$，$i\i
+           n[\ell]$
+      118  \end{algorithmic}
+      119  \end{algorithm}
+      120 +                                                              
+      121 +\subsection{扩展搜索证明流程}                                 
+      122 +                                                              
+      123 +令牌生成阶段无需修改：$\mathcal{G}$ 仍按算法\ref{alg:sse-gento
+          +ken}采样 $\{\beta_i\}_{i\in[k]}$ 并生成令牌。客户端在去盲化后 
+          +持有 $\{\beta_i\}$ 的编码信息，用于后续地址归属验证。         
+      124 +                                                              
+      125 +搜索阶段，服务器在原 Nomos 搜索流程（算法\ref{alg:sse-search} 
+          +）的基础上，对每个候选 $(j,\mathsf{id})$ 额外输出地址开封材料 
+          +。算法\ref{alg:commit-search}给出扩展后的搜索证明流程。与原流 
+          +程相比，新增步骤为第\ref{line:recover-all}--\ref{line:output-o
+          +pen}行：服务器恢复全部 $\ell$ 个交叉标签并作为开封材料附加到响
+          +应中。                                                        
+      126 +                                                              
+      127 +\begin{algorithm}[t]                                          
+      128 +\caption{扩展搜索证明流程 $\mathsf{Search\text{-}Prove}'$（地 
+          +址开封）}                                                     
+      129 +\label{alg:commit-search}                                     
+      130 +\begin{algorithmic}[1]                                        
+      131 +\item[] \textbf{Server:}                                      
+      132 +\STATE 按算法\ref{alg:sse-search}枚举 $\mathsf{Cand}(w_s)$ 并 
+          +恢复每个候选的 $(\mathsf{sval}_j,\alpha_j)$                   
+      133 +\FOR{每个候选 $(j,\mathsf{id})\in\mathcal{R}(Q)$}             
+      134 +  \STATE 恢复全部 $\ell$ 个交叉标签：$\mathsf{xtag}_{j,\mathsf
+          +{id},i}\leftarrow (\mathsf{xtoken}_{j})^{\alpha_j\cdot i/\rho_
+          +j}$，$i\in[\ell]$ \label{line:recover-all}                    
+      135 +  \STATE 在 $\mathsf{QTree}$ 上查询 $k$ 个采样地址 $\{\mathsf{
+          +xtag}_{j,\mathsf{id},\beta_i}\}_{i\in[k]}$ 的位值与认证路径   
+      136 +  \STATE 生成判定与 $\mathsf{QTree}$ 证据 $\mathsf{Proof}_{j,\
+          +mathsf{id}}$（按第\ref{chap:bf}章双向证据格式）               
+      137 +  \STATE 设置 $\mathsf{Open}_{j,\mathsf{id}}\leftarrow (\maths
+          +f{xtag}_{j,\mathsf{id},1},\ldots,\mathsf{xtag}_{j,\mathsf{id},
+          +\ell})$ \label{line:output-open}                              
+      138 +\ENDFOR                                                       
+      139 +\STATE 返回 $\rho'=(\mathsf{Cand},\mathsf{Res},\mathsf{Anchor}
+          +_t,\Pi_Q,\{\mathsf{Open}_{j,\mathsf{id}}\},\eta)$             
+      140 +\end{algorithmic}                                             
+      141 +\end{algorithm}                                               
+
+⏺ 继续写验证算法。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 31 lines
+      139  \STATE 返回 $\rho'=(\mathsf{Cand},\mathsf{Res},\mathsf{Anchor}
+           _t,\Pi_Q,\{\mathsf{Open}_{j,\mathsf{id}}\},\eta)$
+      140  \end{algorithmic}
+      141  \end{algorithm}
+      142 +                                                              
+      143 +\subsection{扩展验证流程}                                     
+      144 +                                                              
+      145 +算法\ref{alg:commit-verify}给出客户端的完整验证流程，整合了第\
+          +ref{chap:bf}章的版本校验与路径验证，以及本章新增的承诺开封与地
+          +址归属验证。验证按四层逻辑依次执行，任一层失败即输出 $\mathsf{
+          +Reject}$。                                                    
+      146 +                                                              
+      147 +\begin{algorithm}[t]                                          
+      148 +\caption{扩展验证流程 $\mathsf{Verify}'$（地址绑定校验）}     
+      149 +\label{alg:commit-verify}                                     
+      150 +\begin{algorithmic}[1]                                        
+      151 +\item[] \textbf{Client:}                                      
+      152 +\STATE \textbf{输入}：响应 $\rho'$，本地锚点 $(t^*,R_X^{(t^*)}
+          +,\sigma_{t^*})$，采样索引 $\{\beta_i\}_{i\in[k]}$             
+      153 +\STATE \textbf{第一层：版本校验}                              
+      154 +\STATE 验证 $\sigma_t$ 的签名有效性，检查 $t\ge t^*$（版本不回
+          +退）                                                          
+      155 +\STATE \textbf{第二层：承诺开封验证} \label{line:verify-cm-sta
+          +rt}                                                           
+      156 +\FOR{每个 $(j,\mathsf{id})\in\mathcal{R}(Q)$}                 
+      157 +  \STATE 解密 $\mathsf{TSet}$ 载荷得到 $(\mathsf{id},\mathsf{o
+          +p},\mathsf{Cm}_{w_j,\mathsf{id}})$                            
+      158 +  \STATE 解析 $\mathsf{Open}_{j,\mathsf{id}}=(\mathsf{xtag}_{j
+          +,\mathsf{id},1},\ldots,\mathsf{xtag}_{j,\mathsf{id},\ell})$   
+      159 +  \STATE 验证 $H_c(\mathsf{xtag}_{j,\mathsf{id},1}\|\cdots\|\m
+          +athsf{xtag}_{j,\mathsf{id},\ell})\stackrel{?}{=}\mathsf{Cm}_{w
+          +_j,\mathsf{id}}$                                              
+      160 +\ENDFOR \label{line:verify-cm-end}                            
+      161 +\STATE \textbf{第三层：地址归属与路径验证}                    
+      162 +\FOR{每个 $(j,\mathsf{id})\in\mathcal{R}(Q)$}                 
+      163 +  \STATE 从 $\mathsf{Open}_{j,\mathsf{id}}$ 中按 $\{\beta_i\}$
+          + 提取 $k$ 个地址 $\{a_i=\mathsf{xtag}_{j,\mathsf{id},\beta_i}\
+          +}_{i\in[k]}$                                                  
+      164 +  \STATE 检查 $\mathsf{Proof}_{j,\mathsf{id}}$ 中使用的地址与 
+          +$\{a_i\}_{i\in[k]}$ 一致                                      
+      165 +  \STATE 对每个证明三元组 $(a,b,\pi_a)$ 执行 $\mathsf{VfPath}(
+          +R_X^{(t)},a,b,\pi_a)\stackrel{?}{=}1$                         
+      166 +\ENDFOR                                                       
+      167 +\STATE \textbf{第四层：语义校验}                              
+      168 +\STATE 由已验证位值重算每个 $(j,\mathsf{id})$ 的判定位，与服务
+          +器声明比对                                                    
+      169 +\STATE 由全部判定位恢复 $\mathsf{Res}'$，验证 $\mathsf{Res}'\s
+          +tackrel{?}{=}\mathsf{Res}$                                    
+      170 +\STATE 若全部通过则输出 $\mathsf{Accept}$，否则输出 $\mathsf{R
+          +eject}$                                                       
+      171 +\end{algorithmic}                                             
+      172 +\end{algorithm}                                               
+
+⏺ 继续写开销分析子节。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 6 lines
+      170  \STATE 若全部通过则输出 $\mathsf{Accept}$，否则输出 $\mathsf{R
+           eject}$
+      171  \end{algorithmic}
+      172  \end{algorithm}
+      173 +                                                              
+      174 +\subsection{开销分析}                                         
+      175 +                                                              
+      176 +嵌入式承诺机制在三个维度引入额外开销。存储方面，每条 $\mathsf{
+          +TSet}$ 记录增加一个 $\lambda$ 比特的承诺值 $\mathsf{Cm}$，总额
+          +外存储为 $O(N\cdot\lambda)$，其中 $N$ 为 $\mathsf{TSet}$ 记录 
+          +总数。通信方面，每个候选-关键词对的开封材料包含 $\ell$ 个交叉 
+          +标签（每个为群 $\mathbb{G}$ 中的元素），单次查询的额外通信量为
+          + $O(|\mathsf{Cand}(w_s)|\cdot(n-1)\cdot\ell\cdot|\mathbb{G}|)$
+          +。计算方面，$\mathcal{G}$ 在更新阶段对每条记录增加一次哈希运算
+          +（计算 $\mathsf{Cm}$）；客户端在验证阶段对每个候选-关键词对增 
+          +加一次哈希运算（验证开封）与一次子集归属检查，额外计算量为 $O(
+          +|\mathsf{Cand}(w_s)|\cdot(n-1)\cdot\ell)$。                   
+      177 +                                                              
+      178 +上述开销均为线性或对数级增量。与第\ref{chap:bf}章 $\mathsf{QTr
+          +ee}$ 的 $O(k\log M)$ 路径验证开销相比，承诺开封验证的 $O(\ell)
+          +$ 哈希开销处于同一量级（$\ell$ 与 $k$ 同阶，$\log M$ 为树深度 
+          +常数）。通信开销中 $\ell$ 个交叉标签的传输是主要增量，可通过批
+          +量压缩或承诺树结构进一步优化，但在当前参数规模下不构成瓶颈。  
+
+⏺ 继续写 §5 安全性分析。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 16 lines
+      176  嵌入式承诺机制在三个维度引入额外开销。存储方面，每条 $\mathsf{
+           TSet}$ 记录增加一个 $\lambda$ 比特的承诺值 $\mathsf{Cm}$，总额
+           外存储为 $O(N\cdot\lambda)$，其中 $N$ 为 $\mathsf{TSet}$ 记录
+           总数。通信方面，每个候选-关键词对的开封材料包含 $\ell$ 个交叉
+           标签（每个为群 $\mathbb{G}$ 中的元素），单次查询的额外通信量为
+            $O(|\mathsf{Cand}(w_s)|\cdot(n-1)\cdot\ell\cdot|\mathbb{G}|)$
+           。计算方面，$\mathcal{G}$ 在更新阶段对每条记录增加一次哈希运算
+           （计算 $\mathsf{Cm}$）；客户端在验证阶段对每个候选-关键词对增
+           加一次哈希运算（验证开封）与一次子集归属检查，额外计算量为 $O(
+           |\mathsf{Cand}(w_s)|\cdot(n-1)\cdot\ell)$。
+      177  
+      178  上述开销均为线性或对数级增量。与第\ref{chap:bf}章 $\mathsf{QTr
+           ee}$ 的 $O(k\log M)$ 路径验证开销相比，承诺开封验证的 $O(\ell)
+           $ 哈希开销处于同一量级（$\ell$ 与 $k$ 同阶，$\log M$ 为树深度
+           常数）。通信开销中 $\ell$ 个交叉标签的传输是主要增量，可通过批
+           量压缩或承诺树结构进一步优化，但在当前参数规模下不构成瓶颈。
+      179 +                                                              
+      180 +\section{安全性分析}\label{sec:commit-security}               
+      181 +                                                              
+      182 +本节分析嵌入式承诺机制的地址绑定健全性，并论证其与第\ref{chap:
+          +bf}章安全性质的组合效果。分析中默认 $H_c$ 满足抗碰撞性，$\math
+          +sf{TSet}$ 载荷加密满足 IND-CPA 安全性。                       
+      183 +                                                              
+      184 +\subsection{地址绑定健全性}                                   
+      185 +                                                              
+      186 +\textbf{命题~5（地址绑定健全性）}。在 $H_c$ 的抗碰撞假设与 $\m
+          +athsf{TSet}$ 载荷加密的 IND-CPA 假设下，定义~5 成立。         
+      187 +                                                              
+      188 +\textbf{证明}。设 PPT 对手 $\mathcal{A}$ 使客户端在验证通过的 
+          +同时接受了一个证明地址不属于承诺集合的响应。分两种情形讨论。  
+      189 +                                                              
+      190 +\emph{情形~1}：$\mathcal{A}$ 提供的开封材料 $(\mathsf{xtag}'_1
+          +,\ldots,\mathsf{xtag}'_\ell)$ 满足 $H_c(\mathsf{xtag}'_1\|\cdo
+          +ts\|\mathsf{xtag}'_\ell)=\mathsf{Cm}_{w_j,\mathsf{id}}$，但 $(
+          +\mathsf{xtag}'_1,\ldots,\mathsf{xtag}'_\ell)\neq(\mathsf{xtag}
+          +_1,\ldots,\mathsf{xtag}_\ell)$。此时 $\mathcal{A}$ 找到了 $H_c
+          +$ 的一组碰撞，概率不超过 $\mathsf{negl}(\lambda)$。           
+      191 +                                                              
+      192 +\emph{情形~2}：$\mathcal{A}$ 篡改了 $\mathsf{TSet}$ 载荷中的 $
+          +\mathsf{Cm}_{w_j,\mathsf{id}}$，使客户端解密得到的承诺值与 $\m
+          +athcal{G}$ 写入的不同。由于 $\mathsf{TSet}$ 载荷经 PRF 派生密 
+          +钥加密，$\mathcal{A}$ 不持有 $K_T$，其对密文的任何修改将导致解
+          +密结果与原始明文不一致。在 IND-CPA 安全性下，$\mathcal{A}$ 无 
+          +法构造使解密后承诺值恰好匹配伪造开封材料的密文修改，成功概率不
+          +超过 $\mathsf{negl}(\lambda)$。                               
+      193 +                                                              
+      194 +综合两种情形，$\mathcal{A}$ 的成功概率不超过 $2\cdot\mathsf{ne
+          +gl}(\lambda)=\mathsf{negl}(\lambda)$。\qed                    
+
+⏺ 继续写组合安全性与隐私讨论。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 21 lines
+      192  \emph{情形~2}：$\mathcal{A}$ 篡改了 $\mathsf{TSet}$ 载荷中的 $
+           \mathsf{Cm}_{w_j,\mathsf{id}}$，使客户端解密得到的承诺值与 $\m
+           athcal{G}$ 写入的不同。由于 $\mathsf{TSet}$ 载荷经 PRF 派生密
+           钥加密，$\mathcal{A}$ 不持有 $K_T$，其对密文的任何修改将导致解
+           密结果与原始明文不一致。在 IND-CPA 安全性下，$\mathcal{A}$ 无
+           法构造使解密后承诺值恰好匹配伪造开封材料的密文修改，成功概率不
+           超过 $\mathsf{negl}(\lambda)$。
+      193  
+      194  综合两种情形，$\mathcal{A}$ 的成功概率不超过 $2\cdot\mathsf{ne
+           gl}(\lambda)=\mathsf{negl}(\lambda)$。\qed
+      195 +                                                              
+      196 +\subsection{组合安全性}                                       
+      197 +                                                              
+      198 +第\ref{chap:bf}章的 $\mathsf{QTree}$ 机制与本章的嵌入式承诺机 
+          +制分别保证位值真实性与地址正确性，两者组合后构成完整的可验证资
+          +格检验。                                                      
+      199 +                                                              
+      200 +\textbf{命题~6（组合可验证性）}。在 CRHF、签名 EUF-CMA 与 $\ma
+          +thsf{TSet}$ 载荷 IND-CPA 假设下，对任意 PPT 恶意服务器 $\mathc
+          +al{S}^*$，其使客户端在验证通过的同时接受与真实资格语义不一致的
+          +判定结果的概率可忽略：                                        
+      201 +\[                                                            
+      202 +\Pr\!\left[\mathsf{Verify}'(\rho')=\mathsf{Accept}\ \land\ \ex
+          +ists(j,\mathsf{id}):\widehat{v}_{j,\mathsf{id}}\neq v_{j,\math
+          +sf{id}}^{(t,\nu)}\right]\le \mathsf{negl}(\lambda).           
+      203 +\]                                                            
+      204 +                                                              
+      205 +\textbf{证明概要}。$\mathcal{S}^*$ 欲使客户端接受错误判定，需 
+          +同时通过四层验证。版本校验由签名 EUF-CMA 保证（命题~3）。承诺 
+          +开封验证由 $H_c$ 抗碰撞性与 $\mathsf{TSet}$ 加密安全性保证（命
+          +题~5），确保服务器使用的地址属于 $\mathcal{G}$ 确定的 $\mathca
+          +l{F}_{w_j,\mathsf{id}}$。在地址正确的前提下，$\mathsf{QTree}$ 
+          +路径验证由 CRHF 保证位值不可伪造（命题~2）。语义校验由客户端本
+          +地重算保证判定一致性。四层验证的安全性分别归约到独立的密码学假
+          +设，$\mathcal{S}^*$ 的总成功概率不超过各层失败概率之和，仍为 $
+          +\mathsf{negl}(\lambda)$。\qed                                 
+      206 +                                                              
+      207 +\subsection{隐私性讨论}                                       
+      208 +                                                              
+      209 +嵌入式承诺机制引入的新增泄露主要来自两个环节。更新阶段，$\math
+          +sf{Cm}$ 嵌入 $\mathsf{TSet}$ 加密载荷，服务器无法从密文中提取 
+          +承诺值，不产生额外泄露。搜索阶段，开封材料 $\mathsf{Open}_{j,\
+          +mathsf{id}}$ 包含 $\ell$ 个交叉标签，这些标签为 PRF/OPRF 输出 
+          +，其值对不持有 $K_X$ 与 $K_Y$ 的客户端而言不泄露关键词明文或文
+          +件标识的语义关联。客户端在验证完成后可丢弃开封材料，不保留超出
+          +原协议的长期状态。                                            
+      210 +                                                              
+      211 +从泄露函数角度，搜索阶段的泄露扩展为                          
+      212 +\[                                                            
+      213 +\mathcal{L}'_{\mathsf{Search}}=\mathcal{L}_{\mathsf{Search}}\c
+          +up\mathcal{L}_{\mathsf{Open}},                                
+      214 +\]                                                            
+      215 +其中 $\mathcal{L}_{\mathsf{Open}}$ 包含每个候选-关键词对的 $\e
+          +ll$ 个交叉标签值。由于这些标签已在更新阶段写入 $\mathsf{XSet}$
+          +（服务器可观测），$\mathcal{L}_{\mathsf{Open}}$ 不超出服务器在
+          +更新阶段已获知的信息范围。对客户端而言，开封材料使其获知了 $\e
+          +ll$ 个交叉标签（原协议中客户端仅通过盲化令牌间接使用 $k$ 个标 
+          +签），但这些标签为伪随机值，不构成对查询隐私的实质性削弱。    
+
+⏺ 最后写 §6 本章小结。
+
+⏺ Update(HUST-PhD-Thesis-Latex/body/chapter/commitment.tex)
+  ⎿  Added 6 lines
+      213  \mathcal{L}'_{\mathsf{Search}}=\mathcal{L}_{\mathsf{Search}}\c
+           up\mathcal{L}_{\mathsf{Open}},
+      214  \]
+      215  其中 $\mathcal{L}_{\mathsf{Open}}$ 包含每个候选-关键词对的 $\e
+           ll$ 个交叉标签值。由于这些标签已在更新阶段写入 $\mathsf{XSet}$
+           （服务器可观测），$\mathcal{L}_{\mathsf{Open}}$ 不超出服务器在
+           更新阶段已获知的信息范围。对客户端而言，开封材料使其获知了 $\e
+           ll$ 个交叉标签（原协议中客户端仅通过盲化令牌间接使用 $k$ 个标
+           签），但这些标签为伪随机值，不构成对查询隐私的实质性削弱。
+      216 +                                                              
+      217 +\section{本章小结}\label{sec:commit-summary}                  
+      218 +                                                              
+      219 +本章针对第\ref{chap:bf}章 $\mathsf{QTree}$ 机制在 OPRF 盲化架 
+          +构下遗留的地址替换攻击面，提出了基于嵌入式承诺的地址绑定验证机
+          +制。该机制在 Nomos 更新阶段由 $\mathcal{G}$ 计算全部 $\ell$ 个
+          +交叉标签的哈希承诺 $\mathsf{Cm}$ 并嵌入 $\mathsf{TSet}$ 加密载
+          +荷，搜索阶段由服务器提供全部 $\ell$ 个交叉标签作为开封材料，客
+          +户端通过承诺开封验证与子集归属检查确认服务器在 $\mathsf{QTree}
+          +$ 证明中使用的地址属于 $\mathcal{G}$ 确定的地址集合。         
+      220 +                                                              
+      221 +在安全性方面，本章形式化定义了地址绑定健全性（定义~5），并证明
+          +该性质在 CRHF 与 $\mathsf{TSet}$ 载荷加密假设下成立（命题~5） 
+          +。与第\ref{chap:bf}章的位值真实性保证组合后，可验证资格检验的 
+          +两个必要条件——地址正确性与位值真实性——均获得密码学保证（命题~6
+          +），从而排除了恶意服务器通过判定伪造或地址替换操控资格检验结果
+          +的可能。                                                      
+
+⏺ 验证一下完整文件的状态。
+
+⏺ Read 1 file (ctrl+o to expand)
+
+⏺ commitment.tex 重写完成，共 221 行，6 个节：
+
+  1. §1 基线能力边界与位置盲化问题 — 从 QTree 的位值真实性出发，识别 OPRF
+  盲化下的地址替换攻击
+  2. §2 地址绑定安全目标 — 定义完整交叉标签集合
+  $\mathcal{F}_{w,\mathsf{id}}$，形式化定义~5（地址绑定健全性）
+  3. §3 嵌入式承诺机制设计 — 时机选择（方案C）、承诺构造
+  $\mathsf{Cm}=H_c(\mathsf{xtag}1|\cdots|\mathsf{xtag}\ell)$、TSet
+  载荷嵌入、三步验证逻辑链
+  4. §4 协议构造 — 三个算法块（扩展 Update/Search-Prove/Verify）+ 开销分析
+  5. §5 安全性分析 — 命题 5（地址绑定健全性，归约到 CRHF + IND-CPA）、命题
+  6（组合可验证性）、隐私性讨论
+  6. §6 本章小结
+
+  符号体系与 bf.tex 保持一致（$\mathcal{G}$, $R_X^{(t)}$,
+  $\mathcal{A}_{j,\mathsf{id}}^{(t,\nu)}$, $\ell/k/\beta_i$
+  等），定义与命题编号承接第二章（定义 5、命题 5-6）。
+
+✻ Baked for 5m 25s
+
+❯ 将这次重写实现总结到项目相关文件中 
+
+⏺ 先读取需要更新的项目文件。
+
+⏺ Read 3 files (ctrl+o to expand)
+
+⏺ 三个文件都已读取。并行更新控制面板、研究流程和 X 光解构。
+
+⏺ Update(控制面板.md)
+  ⎿  Added 1 line, removed 1 line
+      36  
+      37  - 第一章 `intro.tex`：主体较完整，已完成第15条专项审查与元叙述
+          清理，可进入精修与补证据阶段
+      38  - 第二章 `bf.tex`：前半部分完成度较高，已完成风格规范修正，后半
+          部分仍有 TODO 段落
+      39 -- 第三章 `commitment.tex`：**待重写**——原稿聚焦 TSet 结果完整性
+         -，需重写为"嵌入式承诺解决位置盲化/地址替换"                    
+      39 +- 第三章 `commitment.tex`：**初稿完成**——已重写为"嵌入式承诺解 
+         +决位置盲化/地址替换"，含 6 节 221 行，3 个算法块，定义 5 + 命题
+         + 5-6                                                           
+      40  - 第四章 `experiments.tex`：实验框架已列，参数与结果待填充
+      41  - 第五章 `conclusion.tex`：仅有框架，待成文
+      42  
+
+⏺ Update(控制面板.md)
+  ⎿  Added 1 line
+      53  - ✅ 更新 `论文初稿X光解构.md`：修正创新点描述与餐巾纸图
+      54  - ✅ 更新 `论文研究流程.md`：修正第三章定位与创新点描述
+      55  - ✅ 更新 `RBF-MHT方案.md`：标注位置盲化缺口与第三章解决方案
+      56 +- ✅ **重写 `commitment.tex` 初稿**：6 节完整结构（位置盲化问题
+         + → 安全目标 → 承诺设计 → 协议构造 → 安全分析 → 小结），含算法 5
+         +-7、定义 5、命题 5-6，符号与 bf.tex 一致                       
+      57  
+      58  ## 近期任务（按优先级）
+      59  
+
+⏺ Update(控制面板.md)
+  ⎿  Added 5 lines, removed 5 lines
+      57  
+      58  ## 近期任务（按优先级）
+      59  
+      60 -1. 确认嵌入式承诺方案的完整算法细节（承诺生成时机、开封格式、与
+         - Nomos 参数的衔接）                                            
+      61 -2. 重写 `commitment.tex`：聚焦位置盲化问题与嵌入式承诺地址绑定 
+      62 -3. 精修 `bf.tex`：补齐后半部分证明与小结，标注地址绑定由第三章 
+         -解决                                                           
+      63 -4. 固化 `experiments.tex` 的实验环境、指标与对比基线           
+      64 -5. 完成 `conclusion.tex` 的总结与未来工作                      
+      60 +1. 精修 `commitment.tex`：补充 $\beta_i$ 编码细节、检查 bf.tex 
+         +中对第三章的前向引用一致性、确认定义/命题编号衔接              
+      61 +2. 精修 `bf.tex`：补齐后半部分证明与小结，确认命题 2 中"地址归 
+         +属正确前提"与第三章的衔接                                      
+      62 +3. 固化 `experiments.tex` 的实验环境、指标与对比基线           
+      63 +4. 完成 `conclusion.tex` 的总结与未来工作                      
+      64 +5. 全文符号一致性检查与编译验证                                
+      65  
+      66  ## 执行建议
+      67  
+
+⏺ Update(控制面板.md)
+  ⎿  Added 1 line, removed 1 line
+      74  ---
+      75  
+      76  **最后更新**：2026-02-25
+      77 -**版本**：2.1（修正创新点定位，第三章待重写）                  
+      77 +**版本**：2.2（第三章初稿完成，进入精修阶段）                  
+
+⏺ Update(01-论文生产/方法论/论文研究流程.md)
+  ⎿  Added 2 lines, removed 2 lines
+       4  
+       5  1. 第一章绪论：主体完成，进入术语与引用精修阶段
+       6  2. 第二章机制（MHT 可验证资格检验）：正文初稿完成，证明与小结待
+          精修
+       7 -3. 第三章机制（嵌入式承诺地址绑定）：方案设计完成，正文待重写  
+       7 +3. 第三章机制（嵌入式承诺地址绑定）：**初稿完成**（221 行，6 节
+         +，算法 5-7，定义 5，命题 5-6），进入精修阶段                   
+       8  4. 第四章实验：评估框架已列，参数与结果待填
+       9  5. 第五章结论：结构已建，正文待写
+      10  
+      11 -本文件用于约束后续写作顺序：先完成第三章重写，再精修第二章，然 
+         -后落地第四章实验，最后收束第五章。                             
+      11 +本文件用于约束后续写作顺序：先精修第三章与第二章的衔接（定义/命
+         +题编号、前向引用），再落地第四章实验，最后收束第五章。         
+      12  
+      13  ## 研究问题与目标
+      14  
+
+⏺ Update(记忆库/论文初稿X光解构.md)
+  ⎿  Added 2 lines
+      24    - 攻击：Server 可用”张冠李戴”的地址提供合法 Merkle Proof 欺骗
+           Client
+      25    - 解决：GK 在 Update 阶段将地址集合的承诺 Cm 嵌入 TSet Payloa
+          d，验证时 Server 提供开封，Client 核对地址归属
+      26    - 两者组合：位值真实性 + 地址正确性 = 完整的可验证资格检验
+      27 +  - 安全性：定义 5（地址绑定健全性）→ 命题 5（归约到 CRHF + IND
+         +-CPA）→ 命题 6（组合可验证性）                                 
+      28 +  - **正文状态**：初稿完成（commitment.tex，221 行，6 节，3 个 
+         +算法块）                                                       
+      29  
+      30  - **新增拼图**：给多用户多关键词 SSE 增加”可追责的检索可信层”。
+      31  
+
+⏺ 三个项目文件已同步更新：
+
+  - 控制面板.md — 第三章状态改为"初稿完成"，近期任务调整为精修衔接与后续章节
+  - 论文研究流程.md — 执行状态更新，写作顺序调整为"精修第三章与第二章衔接 →
+  第四章 → 第五章"
+  - 论文初稿X光解构.md — 创新点二补充安全性结论链（定义 5 → 命题 5 → 命题
+  6）与正文完成状态
+
+✻ Sautéed for 1m 17s
+
+❯ commit and push 
+
+⏺ Bash(git status)
+  ⎿  On branch main
+     Your branch is up to date with 'origin/main'.
+     … +19 lines (ctrl+o to expand)
+
+⏺ Bash(git diff)
+  ⎿  diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+     index 765d5ae..fe357a2 100644
+     --- a/.claude/settings.local.json
+     … +129 lines (ctrl+o to expand)
+
+⏺ Bash(git log --oneline -5)
+  ⎿  a52cb63 更新子模块：修复章节 label 与 \qedhere 编译错误
+     ea9d818 正确配置 HUST-PhD-Thesis-Latex 子模块并更新至 commitment.tex
+     初
+     稿版本
+     … +3 lines (ctrl+o to expand)
+
+⏺ 先提交子模块内的 commitment.tex 变更，再提交主仓库。
+
+⏺ Bash(cd /Users/bytedance/Code/Personal/paper/HUST-PhD-Thesis-Latex && git add
+      body/chapter/commitment.tex && git commit -m "$(cat <<'EOF'
+      重写 commitment.tex：嵌入式承诺地址绑定…)
+  ⎿  [main 4bba09f] 重写 commitment.tex：嵌入式承诺地址绑定验证机制
+      1 file changed, 156 insertions(+), 398 deletions(-)
+
+⏺ Bash(cd /Users/bytedance/Code/Personal/paper && git add
+      "01-论文生产/方法论/论文研究流程.md"
+      "01-论文生产/素材库/基础库/RBF-MHT双向证据可验证资格检验方案.md"
+      "01-论文生产/素材库/基础库/嵌入式承诺地址绑定方案.md" "控制面板.md"…)
+  ⎿  [main 5279fc9] 重写第三章并同步项目文档
+      7 files changed, 269 insertions(+), 49 deletions(-)
+      create mode 100644 "01-\350\256\272\346\226\207\347\224\237\344\272\2
+     … +4 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/bytedance/Code/Personal/paper/HUST-PhD-Thesis-Latex && git
+      push)
+  ⎿  To github.com:ZBCccc/HUST-PhD-Thesis-Latex.git
+        ab39d15..4bba09f  main -> main
+
+⏺ Bash(git push)
+  ⎿  Everything up-to-date
+
+⏺ 主仓库显示 up-to-date，检查一下远程状态。
+
+⏺ Bash(git log --oneline -3 && echo "---" && git remote -v && echo "---" && git
+      status)
+  ⎿  4bba09f 重写 commitment.tex：嵌入式承诺地址绑定验证机制
+     ab39d15 修复编译错误：补充章节 label，移除未定义的 \qedhere
+     810ead4 完成第三章嵌入式承诺机制正文初稿
+     … +8 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/bytedance/Code/Personal/paper && git log --oneline -3 && echo
+      "---" && git remote -v && echo "---" && git status)
+  ⎿  5279fc9 重写第三章并同步项目文档
+     a52cb63 更新子模块：修复章节 label 与 \qedhere 编译错误
+     ea9d818 正确配置 HUST-PhD-Thesis-Latex 子模块并更新至 commitment.tex
+     初
+     … +10 lines (ctrl+o to expand)
+
+⏺ 主仓库还差一个 commit 没推上去。
+
+⏺ Bash(git push)
+  ⎿  To github.com:ZBCccc/paper.git
+        a52cb63..5279fc9  main -> main
+
+⏺ 两个仓库都已推送完成。子模块 HUST-PhD-Thesis-Latex 和主仓库 paper
+  均已同步到远程。
+
+✻ Brewed for 1m 50s
