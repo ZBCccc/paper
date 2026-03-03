@@ -37,7 +37,9 @@
       "Bash(grep error::*)",
       "Bash(git pull:*)",
       "Bash(git stash:*)",
-      "mcp__filesystem__read_text_file"
+      "mcp__filesystem__read_text_file",
+      "Bash(git:*)",
+      "Bash(pdfinfo:*)"
     ]
   }
 }

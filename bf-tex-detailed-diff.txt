@@ -1,0 +1,116 @@
+diff --git a/body/chapter/bf.tex b/body/chapter/bf.tex
+index 1522c92..177beae 100644
+--- a/body/chapter/bf.tex
++++ b/body/chapter/bf.tex
+@@ -11,7 +11,7 @@
+ \end{equation}
+ 除非特别说明，文中 ``结果'' 指文件标识集合 $\mathsf{Res}(Q)$，文件内容的返回与解密属于外层数据访问流程。
+ 
+-本文构造依赖以下密码学原语。令 $F:\{0,1\}^\lambda\times\{0,1\}^*\to\{0,1\}^\lambda$ 为伪随机函数（PRF），其安全性要求任何 PPT 区分器在随机预言与 $F(K,\cdot)$ 之间的区分优势为 $\mathsf{negl}(\lambda)$\cite{goldreich1986construct}。令 $H:\{0,1\}^*\to\{0,1\}^\lambda$ 为抗碰撞哈希函数，其安全性要求对任何 PPT 对手 $\mathcal{A}$，在输入 $1^\lambda$ 后找到 $x\neq x'$ 使得 $H(x)=H(x')$ 的概率为 $\mathsf{negl}(\lambda)$。设 $\mathbb{G}$ 为素阶 $p$ 的循环群，$g$ 为其生成元；当需要群元素时，使用编码函数 $\varphi:\{0,1\}^\lambda\to\mathbb{G}$ 定义为 $\varphi(x)=g^{\mathsf{int}(x)\bmod p}$，其中 $\mathsf{int}(\cdot)$ 将比特串解释为整数；$\varphi$ 继承 $H$ 的抗碰撞性。令 $F_p:\mathbb{Z}_p^*\times\{0,1\}^*\to\mathbb{Z}_p^*$ 为不经意伪随机函数（Oblivious PRF, OPRF）\cite{freedman2005oprf}。OPRF 是一个两方协议：持有密钥 $K$ 的发送方与持有输入 $x$ 的接收方交互后，接收方获得 $F_p(K,x)$，而发送方不获知 $x$，接收方不获知 $K$；其安全性要求 $F_p(K,\cdot)$ 的输出对不持有 $K$ 的 PPT 对手与随机函数不可区分。令 $\mathsf{AE}=(\mathsf{AE.Enc},\mathsf{AE.Dec})$ 为认证加密方案，满足 IND-CPA 安全性与 INT-CTXT 完整性\cite{rogaway2011evaluation}。
++本文构造依赖以下密码学原语。令 $F:\{0,1\}^\lambda\times\{0,1\}^*\to\{0,1\}^\lambda$ 为伪随机函数（PRF），其安全性要求任何 PPT 区分器在随机预言与 $F(K,\cdot)$ 之间的区分优势为 $\mathsf{negl}(\lambda)$\cite{goldreich1986construct}。令 $H:\{0,1\}^*\to\{0,1\}^\lambda$ 为抗碰撞哈希函数，其安全性要求对任何 PPT 对手 $\mathcal{A}$，在输入 $1^\lambda$ 后找到 $x\neq x'$ 使得 $H(x)=H(x')$ 的概率为 $\mathsf{negl}(\lambda)$。设 $\mathbb{G}$ 为素阶 $p$ 的循环群，$g$ 为其生成元；当需要群元素时，使用编码函数 $\varphi:\{0,1\}^\lambda\to\mathbb{G}$ 定义为 $\varphi(x)=g^{\mathsf{int}(x)\bmod p}$，其中 $\mathsf{int}(\cdot)$ 将比特串解释为整数；$\varphi$ 继承 $H$ 的抗碰撞性。令 $F_p:\mathbb{Z}_p^*\times\{0,1\}^*\to\mathbb{Z}_p^*$ 为不经意伪随机函数（Oblivious PRF, OPRF）\cite{freedman2005oprf}。OPRF 是一个两方协议：持有密钥 $K$ 的发送方与持有输入 $x$ 的接收方交互后，接收方获得 $F_p(K,x)$，而发送方不获知 $x$，接收方不获知 $K$；其安全性要求 $F_p(K,\cdot)$ 的输出对不持有 $K$ 的 PPT 对手与随机函数不可区分。令 $\mathsf{AE}=(\mathsf{AE.Enc},\mathsf{AE.Dec})$ 为认证加密方案，满足 IND-CPA 安全性与 INT-CTXT 完整性\cite{rogaway2011evaluation}。需要说明的是，Nomos 基线协议在 $\mathsf{TSet}$ 载荷加密中使用流密码（XOR 掩码），本章的可验证性扩展保持该设计不变；第\ref{chap:commitment}章为实现承诺绑定将 $\mathsf{TSet}$ 载荷升级为认证加密，届时 $\mathsf{AE}$ 的 INT-CTXT 性质将成为安全证明的必要假设。
+ 表\ref{tab:notation}汇总本文常用符号。
+ \begin{table}[t]
+ \centering
+@@ -26,6 +26,9 @@ $\mathsf{DB}$, $N$ & 外包文件集合及规模\\
+ $\mathsf{id}$, $\mathsf{doc}$ & 文件标识与文件内容\\
+ $\mathcal{W}$, $\mathcal{W}_i$ & 关键词空间及文件 $i$ 的关键词集合\\
+ $Q=\{w_1,\ldots,w_n\}$ & 合取查询关键词集合\\
++$I: \mathcal{W} \to [d]$ & 关键词到索引的映射函数\\
++$\mathsf{UpdateCnt}: \mathcal{W} \to \mathbb{N}$ & 关键词更新计数器\\
++$K_Z$ & 由 $K_S$ 和 $w$ 派生的临时密钥\\
+ $\mathcal{D}$, $\mathcal{G}$, $\mathcal{C}_i$, $\mathcal{S}$ & 数据拥有者、授权管理方、授权用户、云服务器\\
+ $F:\{0,1\}^\lambda\times\{0,1\}^*\to\{0,1\}^\lambda$ & 伪随机函数（PRF）\\
+ $H:\{0,1\}^*\to\{0,1\}^\lambda$ & 抗碰撞哈希函数\\
+@@ -106,7 +109,7 @@ $\mathsf{XSet}$ & 交叉标签成员性检验索引\\
+ \text{Type-II:}\quad & \mathcal{L}_{\mathsf{Search}}(w)=\mathcal{L}^{\mathsf{II}}_{\mathsf{S}}\big(\mathsf{TimeDB}(w),\,\mathsf{Updates}(w)\big), \label{eq:bp-type2}\\
+ \text{Type-III:}\quad & \mathcal{L}_{\mathsf{Search}}(w)=\mathcal{L}^{\mathsf{III}}_{\mathsf{S}}\big(\mathsf{TimeDB}(w),\,\mathsf{DelHist}(w)\big). \label{eq:bp-type3}
+ \end{align}
+-Type-I 最强，搜索泄露仅包含当前有效匹配集合 $\mathsf{TimeDB}(w)$ 与更新总次数 $|\mathsf{Updates}(w)|$；Type-II 进一步泄露完整更新时间线 $\mathsf{Updates}(w)$；Type-III 最弱，额外泄露删除操作与对应插入操作的配对关系 $\mathsf{DelHist}(w)$。多客户端动态 SSE 方案通常以 Type-II 作为后向隐私目标层级\cite{bag2024nomos}。
++Type-I 最强，搜索泄露仅包含有效匹配集合 $\mathsf{TimeDB}(w)$ 与更新总次数 $|\mathsf{Updates}(w)|$；Type-II 进一步泄露完整更新时间线 $\mathsf{Updates}(w)$；Type-III 最弱，额外泄露删除操作与对应插入操作的配对关系 $\mathsf{DelHist}(w)$。多客户端动态 SSE 方案通常以 Type-II 作为后向隐私目标层级\cite{bag2024nomos}。
+ 
+ \textbf{正确性}。当 $\mathcal{S}$ 诚实执行协议时，客户端对任意合法查询 $Q$ 的输出应以压倒性概率等于真实结果集。设 $\rho\leftarrow \mathsf{Search}(\tau,\mathsf{EDB})$，正确性要求
+ \begin{equation}
+@@ -148,11 +151,11 @@ Bag 等提出的 Nomos 构造面向 MRSW 场景下的动态合取 SSE\cite{bag20
+ \begin{algorithmic}[1]
+ \item[] \textbf{Gate-keeper:}
+ \STATE 解析 $\mathsf{sk}=(K_S,K_T,K_X,K_Y)$ 与 $\mathsf{UpdateCnt}$
+-\STATE 设置 $K_Z \leftarrow F(H(\varphi(H(w))^{K_S}),1)$
++\STATE 设置 $K_Z \leftarrow F(\varphi(H(w))^{K_S},1)$
+ \STATE 如果{$\mathsf{UpdateCnt}[w]=\mathsf{NULL}$}，就设置$\mathsf{UpdateCnt}[w]\leftarrow 0$
+ \STATE 设置$\mathsf{UpdateCnt}[w]\leftarrow \mathsf{UpdateCnt}[w]+1$
+ \STATE 设置 $\mathsf{addr}\leftarrow \varphi(H(w\|\mathsf{UpdateCnt}[w]\|0))^{K_T[I(w)]}$
+-\STATE 设置 $\mathsf{val}\leftarrow (\mathsf{id}\|\mathsf{op})\oplus H(\varphi(H(w\|\mathsf{UpdateCnt}[w]\|1))^{K_T[I(w)]})$
++\STATE 设置 $\mathsf{val}\leftarrow (\mathsf{id}\|\mathsf{op})\oplus H(\varphi(H(w\|\mathsf{UpdateCnt}[w]\|1))^{K_T[I(w)]})$ \COMMENT{流密码（XOR 掩码）}
+ \STATE 设置 $\alpha\leftarrow F_p(K_Y,\mathsf{id}\|\mathsf{op})\cdot (F_p(K_Z,w\|\mathsf{UpdateCnt}[w]))^{-1}$
+ \STATE 设置 $\mathsf{xtag}_i\leftarrow \varphi(H(w))^{K_X[I(w)]\cdot F_p(K_Y,\mathsf{id}\|\mathsf{op})\cdot i}$，其中{$i=1 \dots \ell$}
+ \STATE 发送 $(\mathsf{addr},\mathsf{val},\alpha,\{\mathsf{xtag}_i\}_{i\in[\ell]})$ 至服务器
+@@ -291,7 +294,7 @@ Nomos 构造在 $\mathcal{L}$-隐私定义下提供了搜索模式与访问模
+ 
+ 该缺口在恶意服务器模型下尤为突出。对于合取查询，服务器可跳过部分交叉关键词测试以节省计算，可选择性丢弃本应通过的候选，或在多用户场景中对资格判定施加偏置。由于 Bloom Filter / RBF 判定结果为布尔输出，且缺乏与全局状态绑定的认证证据，客户端无法验证该判定是否由正确、完整且最新的检验过程导出。
+ 
+-改进目标因此不是替换 Nomos 的检索语义，而是在其候选枚举与交叉过滤结构上引入可验证资格检验机制：将服务器的每一次资格判定绑定到可独立验证的密码学证明，并使该证明与当前索引版本一致。
++改进目标因此不是替换 Nomos 的检索语义，而是在其候选枚举与交叉过滤结构上引入可验证资格检验机制：将服务器的每一次资格判定绑定到可独立验证的密码学证明，并使该证明与索引版本一致。
+ 
+ \subsection{Nomos 中 RBF 资格检验机制回顾}
+ Nomos 的交叉关键词测试由 ``$\mathsf{xtag}$ 写入 + $\mathsf{xtoken}$ 查询'' 两步完成，并由 RBF 语义承载。具体地，在算法\ref{alg:sse-update}中，Gate-keeper 对每条更新 $(w,\mathsf{id},\mathsf{op})$ 计算
+@@ -458,7 +461,7 @@ v_{j,\mathsf{id}}^{(t,\nu)}=\bigwedge_{a\in \mathcal{A}_{j,\mathsf{id}}^{(t,\nu)
+ 
+ \subsection{可验证性分析}
+ \begin{proposition}[绑定健全性]\label{prop:vq-sound}
+-在 CRHF 与签名 EUF-CMA 假设下，定义 2 成立。具体地，对任意 PPT 对手 $\mathcal{A}$，存在 PPT 归约算法 $\mathcal{B}_1$、$\mathcal{B}_2$ 使得
++在地址归属正确的前提下，在 CRHF 与签名 EUF-CMA 假设下，定义 2 成立。具体地，对任意 PPT 对手 $\mathcal{A}$，存在 PPT 归约算法 $\mathcal{B}_1$、$\mathcal{B}_2$ 使得
+ \begin{equation}
+ \mathsf{Adv}_{\Pi,\mathcal{A}}^{\mathsf{VQ\text{-}Sound}}(\lambda) \le \mathsf{Adv}_{\mathsf{Sig},\mathcal{B}_1}^{\mathsf{EUF\text{-}CMA}}(\lambda) + \mathsf{Adv}_{H,\mathcal{B}_2}^{\mathsf{CR}}(\lambda).
+ \end{equation}
+@@ -474,14 +477,40 @@ v_{j,\mathsf{id}}^{(t,\nu)}=\bigwedge_{a\in \mathcal{A}_{j,\mathsf{id}}^{(t,\nu)
+ 
+ \textbf{Game $G_1$}（消除签名伪造）：与 $G_0$ 相同，但增加中止规则：若 $\mathcal{A}$ 在 $\rho^\star$ 中提供的锚点 $(t',R')$ 满足 $\mathsf{VfSig}(\mathsf{pk}_G, t'\|R', \sigma')=1$ 但 $(t'\|R')\notin S_{\mathsf{anchor}}$，则实验中止并判 $\mathcal{A}$ 失败。记中止事件为 $E_1$，$\mathcal{A}$ 在 $G_1$ 中的胜利概率为 $p_1$。
+ 
+-\emph{过渡论证}：构造归约算法 $\mathcal{B}_1$ 如下。$\mathcal{B}_1$ 从 EUF-CMA 挑战者处获得验证公钥 $\mathsf{pk}_G$，持有除签名密钥 $\mathsf{sk}_G$ 外的所有系统密钥（$K_S,K_X,K_T$ 等），因此能正常执行 $\mathsf{Update}$（计算 $\mathsf{TSet}$ 载荷、更新 $\mathsf{QTree}$）和 $\mathsf{GenToken}$（计算搜索令牌与盲化参数）。唯一需要 $\mathsf{sk}_G$ 的操作是锚点签名：$\mathcal{B}_1$ 调用签名预言机获取 $\sigma_t\leftarrow\mathsf{Sign}(\mathsf{sk}_G, t\|R_X^{(t)})$，同时记录所有已签名消息 $t\|R_X^{(t)})$ 至集合 $S_{\mathsf{anchor}}$。$\mathcal{B}_1$ 的模拟与 $G_0$ 的分布完全一致。若事件 $E_1$ 发生，即 $\mathcal{A}$ 提交了 $(t'\|R',\sigma')$ 使得 $\mathsf{VfSig}(\mathsf{pk}_G, t'\|R', \sigma')=1$ 且 $(t'\|R')\notin S_{\mathsf{anchor}}$，则 $\mathcal{B}_1$ 输出 $(t'\|R',\sigma')$ 作为 EUF-CMA 伪造。因此
++\emph{过渡论证}：构造归约算法 $\mathcal{B}_1$ 如下。
++
++\textbf{密钥持有}：$\mathcal{B}_1$ 从 EUF-CMA 挑战者处获得验证公钥 $\mathsf{pk}_G$，自行生成并持有 $(K_S, K_T, K_X, K_Y) \xleftarrow{\$} \mathcal{K}^4$，其中 $\mathcal{K}$ 为 PRF 密钥空间。$\mathcal{B}_1$ 不持有签名密钥 $\mathsf{sk}_G$，但可访问签名预言机 $\mathcal{O}_{\mathsf{Sign}}(\cdot)$。
++
++\textbf{预言机模拟}：$\mathcal{B}_1$ 维护 $\mathsf{QTree}$ 状态 $\mathbf{B}^{(t)}$ 与已签名锚点集合 $S_{\mathsf{anchor}}=\emptyset$，响应 $\mathcal{A}$ 的查询如下：
++\begin{itemize}[leftmargin=2em,itemsep=0pt,parsep=0pt]
++\item \textbf{$\mathsf{Update}(j,\mathsf{id},v)$}：使用持有的 $(K_S,K_X,K_T,K_Y)$ 计算 $\mathsf{xtag}_i=F(K_X,\mathsf{label}_i)\oplus F(K_T,w_i)$，构造 $\mathsf{TSet}$ 载荷并更新 $\mathbf{B}^{(t+1)}$。计算新根 $R_X^{(t+1)}$ 后，调用 $\sigma_{t+1}\leftarrow\mathcal{O}_{\mathsf{Sign}}(t+1\|R_X^{(t+1)})$ 获取锚点签名，记录 $(t+1\|R_X^{(t+1)})\to S_{\mathsf{anchor}}$，返回 $(\mathsf{TSet}^{(t+1)},\sigma_{t+1})$。
++\item \textbf{$\mathsf{GenToken}(Q)$}：使用持有的 $(K_S,K_Y)$ 计算搜索令牌 $\mathsf{stag}_i=F(K_S,w_i)$ 与盲化参数 $y_i=F(K_Y,w_i)$，返回 $\tau_Q=(\{\mathsf{stag}_i,y_i\}_{w_i\in Q})$。
++\item \textbf{锚点查询}：返回当前版本 $(t,R_X^{(t)},\sigma_t)$，其中 $\sigma_t$ 由先前 $\mathsf{Update}$ 调用 $\mathcal{O}_{\mathsf{Sign}}$ 获得。
++\end{itemize}
++
++\textbf{分布等价性}：由于 $(K_S,K_T,K_X,K_Y)$ 均匀随机生成，$\mathcal{B}_1$ 的模拟与 $G_0$ 中挑战者 $\mathcal{C}$ 的行为分布完全一致。$\mathcal{A}$ 无法区分真实实验与归约模拟。
++
++\textbf{伪造提取}：若事件 $E_1$ 发生，即 $\mathcal{A}$ 提交 $(t'\|R',\sigma')$ 使得 $\mathsf{VfSig}(\mathsf{pk}_G, t'\|R', \sigma')=1$ 且 $(t'\|R')\notin S_{\mathsf{anchor}}$，则 $\mathcal{B}_1$ 输出 $(t'\|R',\sigma')$ 作为 EUF-CMA 伪造。因此
+ \begin{equation}
+ |p_0-p_1|\le \Pr[E_1] \le \mathsf{Adv}_{\mathsf{Sig},\mathcal{B}_1}^{\mathsf{EUF\text{-}CMA}}(\lambda).
+ \end{equation}
+ 
+ \textbf{Game $G_2$}（消除 Merkle 路径伪造）：与 $G_1$ 相同，但增加中止规则：若 $\mathcal{A}$ 提供的某个证明三元组 $(a,b,\pi_a)$ 满足 $\mathsf{VfPath}(R_X^{(t)},a,b,\pi_a)=1$ 但 $\mathbf{B}^{(t)}[a]\neq b$，则实验中止并判 $\mathcal{A}$ 失败。记中止事件为 $E_2$，$\mathcal{A}$ 在 $G_2$ 中的胜利概率为 $p_2$。
+ 
+-\emph{过渡论证}：构造归约算法 $\mathcal{B}_2$ 如下。$\mathcal{B}_2$ 持有全部系统密钥（$K_S,K_X,K_T,\mathsf{sk}_G$ 等），因此能完整模拟 $G_1$ 的所有交互（$\mathsf{Update}$、$\mathsf{GenToken}$、锚点签名），并维护 $\mathsf{QTree}$ 的完整状态。$\mathcal{B}_2$ 的目标是在事件 $E_2$ 发生时从伪造路径中提取 $H$ 的碰撞对。具体地，设地址 $a$ 对应的真实叶节点为 $L_a=H(0\|a\|\mathbf{B}^{(t)}[a])$，$\mathcal{A}$ 提供的伪造叶节点为 $L'_a=H(0\|a\|b)$，其中 $b\neq\mathbf{B}^{(t)}[a]$。若 $L_a=L'_a$，则 $(0\|a\|\mathbf{B}^{(t)}[a])$ 与 $(0\|a\|b)$ 构成 $H$ 的碰撞对。否则 $L_a\neq L'_a$，但两条路径均验证通过同一根 $R_X^{(t)}$，$\mathcal{B}_2$ 沿路径从叶到根逐层比较：设第 $i$ 层真实节点为 $h_i$、伪造节点为 $h'_i$，必存在最小的 $i^\star$ 使得 $h_{i^\star}\neq h'_{i^\star}$ 但 $h_{i^\star+1}=h'_{i^\star+1}$，此时 $H$ 的两个不同原像映射到同一值，构成碰撞。因此
++\emph{过渡论证}：构造归约算法 $\mathcal{B}_2$ 如下。
++
++\textbf{密钥持有}：$\mathcal{B}_2$ 自行生成并持有全部系统密钥 $(K_S, K_T, K_X, K_Y) \xleftarrow{\$} \mathcal{K}^4$ 与签名密钥对 $(\mathsf{sk}_G, \mathsf{pk}_G) \leftarrow \mathsf{KeyGen}(1^\lambda)$。$\mathcal{B}_2$ 不需访问任何外部预言机，能完整执行协议的所有操作。
++
++\textbf{预言机模拟}：$\mathcal{B}_2$ 维护 $\mathsf{QTree}$ 完整状态 $\mathbf{B}^{(t)}$ 与已签名锚点集合 $S_{\mathsf{anchor}}=\emptyset$，响应 $\mathcal{A}$ 的查询如下：
++\begin{itemize}[leftmargin=2em,itemsep=0pt,parsep=0pt]
++\item \textbf{$\mathsf{Update}(j,\mathsf{id},v)$}：使用持有的 $(K_S,K_X,K_T,K_Y)$ 计算 $\mathsf{xtag}_i=F(K_X,\mathsf{label}_i)\oplus F(K_T,w_i)$，构造 $\mathsf{TSet}$ 载荷并更新 $\mathbf{B}^{(t+1)}$。计算新根 $R_X^{(t+1)}$ 后，使用 $\mathsf{sk}_G$ 生成签名 $\sigma_{t+1}\leftarrow\mathsf{Sign}(\mathsf{sk}_G, t+1\|R_X^{(t+1)})$，记录 $(t+1\|R_X^{(t+1)})\to S_{\mathsf{anchor}}$，返回 $(\mathsf{TSet}^{(t+1)},\sigma_{t+1})$。
++\item \textbf{$\mathsf{GenToken}(Q)$}：使用持有的 $(K_S,K_Y)$ 计算搜索令牌 $\mathsf{stag}_i=F(K_S,w_i)$ 与盲化参数 $y_i=F(K_Y,w_i)$，返回 $\tau_Q=(\{\mathsf{stag}_i,y_i\}_{w_i\in Q})$。
++\item \textbf{锚点查询}：返回当前版本 $(t,R_X^{(t)},\sigma_t)$，其中 $\sigma_t$ 由先前 $\mathsf{Update}$ 生成。
++\end{itemize}
++
++\textbf{分布等价性}：$\mathcal{B}_2$ 的模拟与 $G_1$ 中挑战者的行为分布完全一致。
++
++\textbf{碰撞提取}：$\mathcal{B}_2$ 的目标是在事件 $E_2$ 发生时从伪造路径中提取 $H$ 的碰撞对。具体地，设地址 $a$ 对应的真实叶节点为 $L_a=H(0\|a\|\mathbf{B}^{(t)}[a])$，$\mathcal{A}$ 提供的伪造叶节点为 $L'_a=H(0\|a\|b)$，其中 $b\neq\mathbf{B}^{(t)}[a]$。若 $L_a=L'_a$，则 $(0\|a\|\mathbf{B}^{(t)}[a])$ 与 $(0\|a\|b)$ 构成 $H$ 的碰撞对。否则 $L_a\neq L'_a$，但两条路径均验证通过同一根 $R_X^{(t)}$，$\mathcal{B}_2$ 沿路径从叶到根逐层比较：设第 $i$ 层真实节点为 $h_i$、伪造节点为 $h'_i$，必存在最小的 $i^\star$ 使得 $h_{i^\star}\neq h'_{i^\star}$ 但 $h_{i^\star+1}=h'_{i^\star+1}$，此时 $H$ 的两个不同原像映射到同一值，构成碰撞。因此
+ \begin{equation}
+ |p_1-p_2|\le \Pr[E_2] \le \mathsf{Adv}_{H,\mathcal{B}_2}^{\mathsf{CR}}(\lambda).
+ \end{equation}
+@@ -524,7 +553,7 @@ v'_{j,\mathsf{id}}=\bigwedge_{a\in\mathsf{ProofAddr}_{j,\mathsf{id}}}\mathbf{B}^
+ 
+ 因此条件完整性对手的优势不超过 $\mathsf{Adv}_{\mathsf{Sig},\mathcal{B}_1}^{\mathsf{EUF\text{-}CMA}}(\lambda)+\mathsf{Adv}_{H,\mathcal{B}_2}^{\mathsf{CR}}(\lambda)=\mathsf{negl}(\lambda)$，命题得证。$\hfill\square$
+ 
+-由命题~\ref{prop:vq-sound}--\ref{prop:vq-complete} 可知，资格检验层可检测以下偏离行为：伪造判定位、跳过部分地址检查、替换令牌绑定地址、回放旧版本状态。需要指出的是，若服务器在 $\mathsf{TSet}$ 阶段直接漏返回候选，该问题属于候选枚举完整性范畴，本文在资格检验层不重复建模；第三章将进一步给出结果返回完整性约束。
++由命题~\ref{prop:vq-sound}--\ref{prop:vq-complete} 可知，资格检验层可检测以下偏离行为：伪造判定位、跳过部分地址检查、替换令牌绑定地址、回放旧版本状态。若服务器在 $\mathsf{TSet}$ 阶段直接漏返回候选，该问题属于候选枚举完整性范畴，本文在资格检验层不重复建模；第三章将进一步给出结果返回完整性约束。
+ 
+ \subsection{隐私性讨论}
+ 引入 $\mathsf{QTree}$ 后，搜索阶段新增信息主要是证明材料 $\Pi_Q$。因此可将泄露函数写为

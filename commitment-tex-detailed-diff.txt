@@ -1,0 +1,45 @@
+diff --git a/body/chapter/commitment.tex b/body/chapter/commitment.tex
+index 3f42d1e..6c3732f 100644
+--- a/body/chapter/commitment.tex
++++ b/body/chapter/commitment.tex
+@@ -60,11 +60,11 @@ $\mathsf{ProofAddr}_{j,\mathsf{id}}$ & 服务器在 $\mathsf{QTree}$ 证明中
+ \begin{equation}\label{eq:commitment}
+ \mathsf{Cm}_{w,\mathsf{id}}=H_c(\mathsf{xtag}_1\|\mathsf{xtag}_2\|\cdots\|\mathsf{xtag}_\ell).
+ \end{equation}
+-为了防止服务器在更新阶段截获明文标签并篡改承诺值，本文将 $\mathsf{TSet}$ 的加密方式从流密码升级为**认证加密**（Authenticated Encryption）：
++为了防止服务器在更新阶段截获明文标签并篡改承诺值，本文将 $\mathsf{TSet}$ 的加密方式从流密码升级为认证加密（Authenticated Encryption）。Nomos 基线协议在 $\mathsf{TSet}$ 载荷中使用流密码（XOR 掩码），该方案仅提供 IND-CPA 保密性，不保证完整性——恶意服务器可在更新阶段截获 $(\mathsf{addr},\mathsf{val},\alpha,\{\mathsf{xtag}_i\})$ 后，利用 $\{\mathsf{xtag}_i\}$ 计算伪造承诺 $\mathsf{Cm}'$ 并通过 XOR 操作将其注入 $\mathsf{val}$ 的对应位置，从而在客户端解密时提供错误的地址验证基准。为排除此类攻击，本章将载荷加密升级为认证加密：
+ \begin{equation}\label{eq:extended-val}
+ \mathsf{val}'=\mathsf{AE.Enc}_{K_E}(\mathsf{id}\|\mathsf{op}\|\mathsf{Cm}_{w,\mathsf{id}}).
+ \end{equation}
+-认证加密的 INT-CTXT 性质确保了任何对载荷（包括嵌入的承诺值）的篡改都会导致解密失败，从而使客户端能够获得一个可信的地址验证基准。
++认证加密的 INT-CTXT 性质确保任何对载荷（包括嵌入的承诺值）的篡改都会导致解密失败，从而使客户端能够获得一个可信的地址验证基准。该升级是实现地址绑定健全性（定义~5）的必要条件：命题~\ref{prop:ab-sound} 的安全归约依赖 INT-CTXT 假设消除载荷篡改事件。
+ 
+ \subsection{开封与验证逻辑}
+ 
+@@ -95,7 +95,7 @@ $\mathsf{ProofAddr}_{j,\mathsf{id}}$ & 服务器在 $\mathsf{QTree}$ 证明中
+ \STATE 设置 $\mathsf{xtag}_i\leftarrow H(w)^{K_X[I(w)]\cdot F_p(K_Y,\mathsf{id}\|\mathsf{op})\cdot i}$，$i\in[\ell]$
+ \STATE 计算 $\mathsf{Cm}\leftarrow H_c(\mathsf{xtag}_1\|\mathsf{xtag}_2\|\cdots\|\mathsf{xtag}_\ell)$ \label{line:cm-compute}
+ \STATE 设置 $K_E\leftarrow G(w,\mathsf{UpdateCnt}[w],K_T[I(w)])$ \label{line:cm-embed}
+-\STATE 设置 $\mathsf{val}'\leftarrow \mathsf{AE.Enc}_{K_E}(\mathsf{id}\|\mathsf{op}\|\mathsf{Cm})$
++\STATE 设置 $\mathsf{val}'\leftarrow \mathsf{AE.Enc}_{K_E}(\mathsf{id}\|\mathsf{op}\|\mathsf{Cm})$ \COMMENT{认证加密（INT-CTXT）}
+ \STATE 设置 $\alpha\leftarrow F_p(K_Y,\mathsf{id}\|\mathsf{op})\cdot (F_p(K_Z,w\|\mathsf{UpdateCnt}[w]))^{-1}$
+ \STATE 发送 $(\mathsf{addr},\mathsf{val}',\alpha,\{\mathsf{xtag}_i\}_{i\in[\ell]})$ 至服务器
+ \item[] \textbf{Server:}
+@@ -161,7 +161,7 @@ $\mathsf{ProofAddr}_{j,\mathsf{id}}$ & 服务器在 $\mathsf{QTree}$ 证明中
+ 
+ 嵌入式承诺机制在三个维度引入额外开销。存储方面，每条 $\mathsf{TSet}$ 记录增加一个 $\lambda$ 比特的承诺值 $\mathsf{Cm}$，总额外存储为 $O(N\cdot\lambda)$，其中 $N$ 为 $\mathsf{TSet}$ 记录总数。通信方面，每个候选-关键词对的开封材料包含 $\ell$ 个交叉标签（每个为群 $\mathbb{G}$ 中的元素），单次查询的额外通信量为 $O(|\mathsf{Cand}(w_s)|\cdot(n-1)\cdot\ell\cdot|\mathbb{G}|)$。计算方面，$\mathcal{G}$ 在更新阶段对每条记录增加一次哈希运算（计算 $\mathsf{Cm}$）；客户端在验证阶段对每个候选-关键词对增加一次哈希运算（验证开封）与一次子集归属检查，额外计算量为 $O(|\mathsf{Cand}(w_s)|\cdot(n-1)\cdot\ell)$。
+ 
+-上述开销均为线性或对数级增量。与第\ref{chap:bf}章 $\mathsf{QTree}$ 的 $O(k\log M)$ 路径验证开销相比，承诺开封验证的 $O(\ell)$ 哈希开销处于同一量级（$\ell$ 与 $k$ 同阶，$\log M$ 为树深度常数）。通信开销中 $\ell$ 个交叉标签的传输是主要增量，可通过批量压缩或承诺树结构进一步优化，但在当前参数规模下不构成瓶颈。
++上述开销均为线性或对数级增量。与第\ref{chap:bf}章 $\mathsf{QTree}$ 的 $O(k\log M)$ 路径验证开销相比，承诺开封验证的 $O(\ell)$ 哈希开销处于同一量级（$\ell$ 与 $k$ 同阶，$\log M$ 为树深度常数）。通信开销中 $\ell$ 个交叉标签的传输是主要增量，可通过批量压缩或承诺树结构进一步优化，但在典型参数规模下不构成瓶颈。
+ 
+ \section{安全性分析}\label{sec:commit-security}
+ 
+@@ -218,7 +218,7 @@ $\mathsf{ProofAddr}_{j,\mathsf{id}}$ & 服务器在 $\mathsf{QTree}$ 证明中
+ \begin{itemize}
+ \item $O_{\mathsf{Update}}(w,\mathsf{id},\mathsf{op})$：$\mathcal{C}$ 按扩展更新流程（算法~\ref{alg:commit-update}）执行，计算 $\ell$ 个交叉标签与承诺 $\mathsf{Cm}$，以认证加密生成 $\mathsf{val}'$，更新 $\mathsf{QTree}$，生成新锚点 $(t,R_X^{(t)},\sigma_t)$，将 $(t\|R_X^{(t)})$ 加入 $S_{\mathsf{anchor}}$，记录 $T_{\mathsf{cm}}$ 与 $T_{\mathsf{xtag}}$，将更新消息发送给 $\mathcal{A}$。
+ \item $O_{\mathsf{GenToken}}(Q,C_i)$：$\mathcal{C}$ 按协议执行 $\mathsf{GenToken}$，采样 $\{\beta_i\}_{i\in[k]}$，返回令牌 $\tau$ 给 $\mathcal{A}$。
+-\item $O_{\mathsf{Anchor}}$：$\mathcal{C}$ 返回当前最新锚点 $(t,R_X^{(t)},\sigma_t)$。
++\item $O_{\mathsf{Anchor}}$：$\mathcal{C}$ 返回最新锚点 $(t,R_X^{(t)},\sigma_t)$。
+ \end{itemize}
+ \item $\mathcal{A}$ 输出目标查询 $Q^\star$ 与响应 ${\rho'}^\star$。
+ \item $\mathcal{C}$ 运行扩展验证流程 $\mathsf{Verify}'(K,\mathsf{st},\tau^\star,{\rho'}^\star)\to(\mathsf{acc},\mathsf{Res}')$，该流程包含四层验证：版本签名校验、承诺开封验证、子集归属与 $\mathsf{QTree}$ 路径验证、语义校验。
