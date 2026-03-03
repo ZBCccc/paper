@@ -28,7 +28,15 @@
       "mcp__filesystem__list_directory",
       "mcp__filesystem__read_multiple_files",
       "Bash(test:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(head:*)",
+      "Bash(./Nomos verifiable:*)",
+      "Bash(./Nomos nomos:*)",
+      "Bash(grep:*)",
+      "Bash(wc:*)",
+      "Bash(grep error::*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)"
     ]
   }
 }
