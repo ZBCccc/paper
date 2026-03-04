@@ -39,7 +39,12 @@
       "Bash(git stash:*)",
       "mcp__filesystem__read_text_file",
       "Bash(git:*)",
-      "Bash(pdfinfo:*)"
+      "Bash(pdfinfo:*)",
+      "Bash(cp:*)",
+      "Bash(xelatex-Thesis-Latex:*)",
+      "mcp__filesystem__read_file",
+      "Bash(python3:*)",
+      "Bash(open:*)"
     ]
   }
 }
