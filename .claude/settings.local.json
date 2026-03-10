@@ -44,7 +44,21 @@
       "Bash(xelatex-Thesis-Latex:*)",
       "mcp__filesystem__read_file",
       "Bash(python3:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(cmake:*)",
+      "Bash(./tests/nomos_test:*)",
+      "Bash(./build/Nomos nomos-simplified:*)",
+      "Bash(./Nomos benchmark:*)",
+      "Bash(./Nomos mc-odxt:*)",
+      "Bash(./Nomos comparative-benchmark:*)",
+      "Bash(chmod +x:*)",
+      "Bash(bash:*)",
+      "Bash(pip3 install:*)",
+      "Bash(pip3:*)",
+      "Bash(conda:*)",
+      "Bash(source:*)",
+      "Bash(/Users/cyan/code/paper/Nomos实现完成报告.md:*)",
+      "WebFetch(domain:arxiv.org)"
     ]
   }
 }

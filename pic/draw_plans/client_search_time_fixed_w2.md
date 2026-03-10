@@ -1,0 +1,1 @@
+Comparative analysis of the client’s Search time overheads of VQNomos, Nomos, and Mc-ODXT with |Upd(w2)| fixed to the highest keyword volume.

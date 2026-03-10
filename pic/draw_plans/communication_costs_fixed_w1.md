@@ -1,0 +1,1 @@
+Comparative analysis of communication costs of VQNomos, Nomos, and Mc-ODXT with a fixed |Upd(w1)| = 10.

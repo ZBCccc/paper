@@ -1,60 +1,80 @@
-# GEMINI.md - PhD Thesis Research Context (VSSE)
+# GEMINI.md - AI 总指南
 
-This workspace is dedicated to the research and writing of a PhD thesis titled (tentatively) "Verifiable Searchable Symmetric Encryption (VSSE) with Forward and Backward Privacy". The research focus is on enhancing the **Nomos** protocol with verifiable mechanisms using Merkle Hash Trees (MHT) and Embedded Commitments.
+面向学术论文研发的个人工作系统。建立长期记忆，复用方法论，沉淀素材，打通方法论与 LaTeX 工程的双向协作。
 
-## 1. Project Overview
+## 模型使用原则
 
-- **Core Goal**: Implement and document a lightweight verifiable mechanism for multi-user, multi-keyword searchable encryption in the limited-leakage privacy model.
-- **Main Innovations**:
-    1. **Verifiable Status Check (VQ)**: Using a Merkle-ized XSet (QTree) to ensure bit-value authenticity (Server cannot forge bit values in Bloom Filter-like structures).
-    2. **Embedded Commitment (AB)**: Using embedded commitments in TSet records to bind XSet physical addresses, preventing "Address Substitution Attacks" where the server proves bit values for the wrong addresses.
-- **Combined Result**: Complete verifiable eligibility testing (Correct Address + Authentic Bit Value).
+- **论文内容撰写**（正文、证明、分析、改写）：`claude-opus-4-6`
+- **Git 操作**（commit、status、log、push）：`claude-haiku-4-5-20251001`
 
-## 2. Directory Structure & Strategy
+## 三层文档结构
 
-The project follows a three-layer document structure as defined in `CLAUDE.md`:
+| 层级 | 路径 | 加载策略 |
+|------|------|----------|
+| 永远加载 | `CLAUDE.md` | 每次会话自动加载 |
+| 自动加载 | `rules/` | 每次会话开始时读取全部文件 |
+| 按需加载 | `docs/` | 用到时再读取 |
 
-| Level | Path | Loading Strategy |
-| :--- | :--- | :--- |
-| **Global** | `CLAUDE.md`, `GEMINI.md` | Auto-loaded every session. |
-| **Rules** | `rules/` | Auto-loaded at session start. Contains `控制面板.md` (Status), `角色与硬约束.md` (Style), `工作流程.md` (Workflow). |
-| **Docs** | `docs/` | On-demand. Contains `memory/` (Research logs), `论文Markdown库/` (Xray literature), and methodology. |
-| **Latex** | `HUST-PhD-Thesis-Latex/` | The primary LaTeX engineering project. |
-| **Refs** | `ref-thesis/` | Original PDF literature. |
+## rules/（自动加载）
 
-## 3. Building and Running
+| 文件 | 内容 |
+|------|------|
+| `rules/控制面板.md` | 章节状态、近期任务、快速导航 |
+| `rules/角色与硬约束.md` | AI 角色定位（4 条）+ 论文表述硬约束（15 条） |
+| `rules/工作流程.md` | 写作流程 + PDF 处理 + 日常执行规范 + 生命周期 |
 
-### LaTeX Project (`HUST-PhD-Thesis-Latex/`)
-- **Main File**: `main.tex`
-- **Compiler**: `xelatex` + `bibtex`.
-- **Standard Compilation Cycle**: `xelatex -> bibtex -> xelatex -> xelatex`.
-- **Editor Recommendation**: VSCode with `LaTeX Workshop` (settings provided in `.vscode/settings.json`).
-- **Cleaning**: Clean `.aux` and temporary files before full validation of cross-references (`\label`/`\ref`).
-- **Note**: `pgfplots` is used for 8 experimental figures in `experiments.tex`; initial compilation may be slow.
+## docs/（按需加载）
 
-### Scripts
-- **Plotting**: `HUST-PhD-Thesis-Latex/scripts/plot_experiments.py` for generating figures from data.
+| 文件/目录 | 内容 |
+|-----------|------|
+| `docs/memory/` | 长期研究记忆（7 个记忆文件） |
+| `docs/论文Markdown库/` | PDF 文献的 Xray Markdown 版本 |
+| `docs/*.md` | 方法论、基础知识、研究流程等参考文档 |
 
-## 4. Development & Writing Conventions
+## 不变项
 
-### Academic Writing Role
-You are a **Top-tier Cryptography Researcher and Writing Coach**.
-- **Style**: Direct, technical, objective, and restrained. Use "PPT adversary", "leakage function", "negl(λ)".
-- **Meta-narrative Prohibited**: Avoid phrases like "For ease of description," "We will now introduce," or "It is worth noting." Stick to direct technical statements about models, definitions, and proofs.
-- **Consistency**: Rigorously maintain symbol consistency across all chapters (Definitions, Algorithms, and Proofs).
+- `HUST-PhD-Thesis-Latex/` — LaTeX 主工程
+- `ref-thesis/` — 原始 PDF 文献
+- `Nomos/` — 代码实现工程（C++11，RELIC/OpenSSL/GMP）
+- `.claude/` — Claude Code 配置
 
-### Verification Workflow
-- **Bug Fixes**: Reproduce any LaTeX/BibTeX errors before fixing.
-- **Security Proofs**: Use the **Game-Hopping** technique for all formal proofs.
-- **New Literature**: Before citing new PDFs, extract them into `docs/论文Markdown库/` using the `ljg-xray-paper` skill.
+## Nomos 代码工程（新增）
 
-## 5. Current Thesis Status (as of 2026-02-27)
+**位置**: `Nomos/`
+**状态**: ✅ OPRF 协议完整实现（2026-03-08）
 
-- **Chapter 1 (Intro)**: Core tables refined; citation cleanup needed.
-- **Chapter 2 (MHT/VQ)**: Formal definitions (Propositions 1-4) and `booktabs` tables complete.
-- **Chapter 3 (Embedded/AB)**: Formal proofs (Propositions 5-6) and algorithm blocks (5-7) complete.
-- **Chapter 4 (Experiments)**: Framework and `pgfplots` templates ready. **Experimental data is pending (marked as 【待补充】).**
-- **Chapter 5 (Conclusion)**: Framework only.
+**快速命令**:
+```bash
+cd Nomos/build
+cmake .. && cmake --build .
+./tests/nomos_test  # 11/11 测试通过
+./Nomos nomos-simplified  # 运行实验
+```
 
-## 6. Maintenance
-Update `rules/控制面板.md` after completing any sub-task. Every week, ensure the project is in a "Compilable State."
+**关键文档**:
+- `Nomos/CLAUDE.md` - 代码工程详细指南
+- `Nomos/OPRF实现总结.md` - OPRF 实现完整总结
+- `Nomos/任务进度-2026-03-08.md` - 最新进度报告
+- `OPRF盲化协议实现思路.md` - 实现思路（根目录）
+- `Nomos方案实现分析.md` - 方案分析（根目录）
+
+**实现状态**:
+- ✅ Nomos Baseline (100%) - 完整 OPRF 四阶段协议
+- ✅ OPRF Protocol (100%) - Client/Gatekeeper/Server 全部实现
+- ✅ 测试覆盖 (100%) - 11/11 测试通过
+- ⏳ Verifiable Nomos (90%)
+- ⏳ MC-ODXT (20%)
+
+## 系统健康检查
+
+1. 找资料时，第一反应路径与实际路径是否一致？
+2. 是否有长期未维护但仍占认知负担的目录？
+3. 新增内容是否能在 10 秒内判断归档位置？
+
+若任一项失败，说明系统结构需要调整。
+
+---
+
+**最后更新**：2026-03-08
+**版本**：4.1（Nomos OPRF 协议完整实现，测试全部通过）
+**论文版本**：4.0（三阶段盲审修复完成，64 个问题全部修复，就绪度 99%+）
